@@ -1,8 +1,11 @@
-# FLiPPR 0.0.1v
+# FLiPPR v0.0.1
 
 ## Overview
 
-Welcome to the 0.0.1v release of FLiPPR! Please note that this version is an early release, and the code base is incomplete. We are actively working on enhancing and expanding the features.
+> [!IMPORTANT]  
+> FLiPPR is currently being rewritten for increased ease of use and enhanced programmatic accessibility.
+
+Welcome to the v0.0.1 release of FLiPPR! Please note that this version is an early release, and the code base is incomplete. We are actively working on enhancing and expanding the features.
 
 ## Table of Contents
 
