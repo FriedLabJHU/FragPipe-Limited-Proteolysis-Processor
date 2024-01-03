@@ -3,3 +3,13 @@ flippr/.DS_Store
 
 __pycache__
 flippr/__pycache__
+
+/**/.*
+/**/.*/
+/**/data/
+/**/*.log
+/**/*.txt
+/**/*.ipynb
+/**/*.xlsx
+/**/__pycache__
+!/.gitignore
