@@ -1,0 +1,13 @@
+file	sample	sample_name	condition	replicate
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_NL1.raw	Native_1	Native_1	Native	1
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_NL2.raw	Native_2	Native_2	Native	2
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_NL3.raw	Native_3	Native_3	Native	3
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RL1min_1.raw	Refolded_001_min_1	Refolded_001_min_1	Refolded	1
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RL1min_2.raw	Refolded_001_min_2	Refolded_001_min_2	Refolded	2
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RL1min_3.raw	Refolded_001_min_3	Refolded_001_min_3	Refolded	3
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RL5_min_1.raw	Refolded_005_min_1	Refolded_005_min_1	Refolded	1
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RL5_min_2.raw	Refolded_005_min_2	Refolded_005_min_2	Refolded	2
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RL5_min_3.raw	Refolded_005_min_3	Refolded_005_min_3	Refolded	3
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RL120_min_1.raw	Refolded_120_min_1	Refolded_120_min_1	Refolded	1
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RL120_min_2.raw	Refolded_120_min_2	Refolded_120_min_2	Refolded	2
+Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RL120_min_3.raw	Refolded_120_min_3	Refolded_120_min_3	Refolded	3
