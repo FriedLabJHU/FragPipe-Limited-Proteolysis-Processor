@@ -42,7 +42,7 @@ To get started with FLiPPR, follow these steps:
 > [!NOTE]  
 > Documentation is coming, I promise!
 
-1. Start a FLiPPR `Study`
+1. Start a Study
 
 ```python
 import flippr as fp
@@ -58,16 +58,21 @@ study = fp.Study(lip = "path/to/lip", trp = "path/to/trp")
 
 ```python
 print(study.samples)
-# > {'LiP': {'Refolded_005_min', 'Native', 'Refolded_120_min', 'Refolded_001_min'}, 'TrP': {'Refolded', 'Native'}}
+# > {
+#    'LiP': 
+#       {'Refolded_005_min', 'Native', 'Refolded_120_min', 'Refolded_001_min'},
+#    'TrP': 
+#       {'Refolded', 'Native'}
+#   }
 ```
 
-3. Add a `Process`
+3. Add a Process
 
 ```python
-# without normalization
+# Process without normalization
 study.add_process(1  , "Native", "Refolded_001_min")
 
-# with normalizations
+# Process with normalizations (only when `trp` is included in the study)
 study.add_process(5  , "Native", "Refolded_005_min", 3, "Native", "Refolded", 3)
 study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded", 3)
 ```
@@ -76,22 +81,19 @@ study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded", 3)
 
 ```python
 results = study.run()
-# {1: Results<Refolded_001_min_v_Native>,
-#  5: Results<Refolded_005_min_v_Native>,
-#  120: Results<Refolded_120_min_v_Native>}
+# > {1: Results<Refolded_001_min_v_Native>,
+# >  5: Results<Refolded_005_min_v_Native>,
+# >  120: Results<Refolded_120_min_v_Native>}
 
 # view polars dataframes
 results[1].ion
-#
 
 results[5].cut_site
-#
 
 results[120].protein_summary
-#
 ```
 
-5. Save to excel
+5. Save to Excel
 
 ```python
 results[120].protein_summary.write_excel(f"{results[120].name}_flippr_summary.xlsx")
