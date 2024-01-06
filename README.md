@@ -1,4 +1,4 @@
-# FLiPPR v0.0.2
+# FLiPPR v0.0.3
 
 ## Overview
 
