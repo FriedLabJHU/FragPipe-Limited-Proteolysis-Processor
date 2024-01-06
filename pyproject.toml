@@ -41,7 +41,6 @@ dependencies = [
   "numpy",
   "pandas",
   "polars",
-  "protfasta",
   "pyarrow",
   "requests",
   "scipy",

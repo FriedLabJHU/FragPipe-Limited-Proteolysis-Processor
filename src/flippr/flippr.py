@@ -3,12 +3,12 @@ import polars as pl
 from pathlib import Path
 from functools import cached_property
 
-from flippr import validate as val
-from flippr import combine as flippr_comb
-from flippr import functions as flippr_func
-from flippr.parameters import LFQ_FP_CONSTANT_ION_COLUMNS, LFQ_FP_VARIABLE_ION_COLUMNS
-from flippr.parameters import LFQ_FP_CONSTANT_PROTEIN_COLUMNS, LFQ_FP_VARIABLE_PROTEIN_COLUMNS
-from flippr.parameters import FLIPPR_PROTEIN_SUMMARY_COLUMNS
+from . import validate as val
+from . import combine as flippr_comb
+from . import functions as flippr_func
+from .parameters import LFQ_FP_CONSTANT_ION_COLUMNS, LFQ_FP_VARIABLE_ION_COLUMNS
+from .parameters import LFQ_FP_CONSTANT_PROTEIN_COLUMNS, LFQ_FP_VARIABLE_PROTEIN_COLUMNS
+from .parameters import FLIPPR_PROTEIN_SUMMARY_COLUMNS
 
 
 class Process:

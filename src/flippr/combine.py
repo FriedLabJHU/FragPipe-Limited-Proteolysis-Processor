@@ -2,8 +2,8 @@ import polars as pl
 import scipy as sp
 import numpy as np
 
-from flippr.functions import _log2, _log10
-from flippr.parameters import FLIPPR_COMBINE_KEY
+from .functions import _log2, _log10
+from .parameters import FLIPPR_COMBINE_KEY
 
 COMB_NAME_COLUMN = {
     "CUT SITE": "Cut Site ID",

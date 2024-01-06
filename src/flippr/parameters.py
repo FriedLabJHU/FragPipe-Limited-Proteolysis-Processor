@@ -131,6 +131,15 @@ FLIPPR_COMBINE_KEY: dict[str, list] = {
     "MODIFIED PEPTIDE": FLIPPR_MODIFIED_PEPTIDE_COLUMNS
 }
 
+# Thank you Holehouse lab!
+STANDARD_AA_CONVERSION = {'B':'N',
+                       'U':'C',
+                       'X':'G',
+                       'Z':'Q',
+                       '*':'',
+                       '-':'',
+                       ' ':''}
+
 # TODO: Add SILAC compatibility
 # SILAC_FP_FILES = None
 # SILAC_FP_COLUMNS = None

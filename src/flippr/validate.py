@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from flippr.parameters import LFQ_FP_FILES
+from .parameters import LFQ_FP_FILES
 # from flippr.parameters import SILAC_FP_FILES
 
 

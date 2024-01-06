@@ -3,9 +3,9 @@ import polars as pl
 from pathlib import Path
 from functools import cached_property
 
-from flippr import flippr
-from flippr import validate as val
-from flippr.uniprot import fasta as faa
+from . import flippr as _flippr
+from . import validate as val
+from .uniprot import fasta as faa
 
 
 # TODO TOC
@@ -78,9 +78,9 @@ class Study:
             pid = self._pid
             self._pid += 1
 
-        self.processes.update({pid:flippr.Process(self.lip, self.trp, pid, lip_ctrl, lip_test, n_rep, trp_ctrl, trp_test, trp_n_rep)})
+        self.processes.update({pid:_flippr.Process(self.lip, self.trp, pid, lip_ctrl, lip_test, n_rep, trp_ctrl, trp_test, trp_n_rep)})
 
-    def run(self) -> dict[str, flippr.Result]:
+    def run(self) -> dict[str, _flippr.Result]:
         
         self.results = {pid: proc.run() for pid, proc in self.processes.items()}
 
