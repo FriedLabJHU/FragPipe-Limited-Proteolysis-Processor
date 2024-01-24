@@ -1,7 +1,7 @@
 LFQ_FP_FILES: list[str] = [
     "combined_ion.tsv",
     "combined_protein.tsv",
-    "experiment_annotation.tsv"
+    "experiment_annotation.tsv",
 ]
 
 LFQ_FP_CONSTANT_ION_COLUMNS: list[str] = [
@@ -22,14 +22,14 @@ LFQ_FP_CONSTANT_ION_COLUMNS: list[str] = [
     "Gene",
     "Protein Description",
     "Mapped Genes",
-    "Mapped Proteins"
+    "Mapped Proteins",
 ]
 
 LFQ_FP_VARIABLE_ION_COLUMNS: list[str] = [
     "Spectral Count",
     "Apex Retention Time",
     "Intensity",
-    "Match Type"
+    "Match Type",
 ]
 
 LFQ_FP_CONSTANT_PROTEIN_COLUMNS: list[str] = [
@@ -46,7 +46,7 @@ LFQ_FP_CONSTANT_PROTEIN_COLUMNS: list[str] = [
     "Combined Total Peptides",
     "Combined Spectral Count",
     "Combined Unique Spectral Count",
-    "Combined Total Spectral Count"
+    "Combined Total Spectral Count",
 ]
 
 LFQ_FP_VARIABLE_PROTEIN_COLUMNS: list[str] = [
@@ -64,7 +64,7 @@ FLIPPR_PROTEIN_COLUMNS: list[str] = [
     "Organism",
     "Protein Existence",
     "Description",
-    "Protein Probability"
+    "Protein Probability",
 ]
 
 
@@ -75,7 +75,7 @@ FLIPPR_PROTEIN_SUMMARY_COLUMNS: list[str] = [
     "Gene",
     "Protein Description",
     "Mapped Genes",
-    "Mapped Proteins"
+    "Mapped Proteins",
 ]
 
 FLIPPR_CUT_SITE_COLUMNS: list[str] = [
@@ -86,7 +86,7 @@ FLIPPR_CUT_SITE_COLUMNS: list[str] = [
     "Protein Description",
     "Mapped Genes",
     "Mapped Proteins",
-    "Half Tryptic"
+    "Half Tryptic",
 ]
 
 FLIPPR_PEPTIDE_COLUMNS: list[str] = [
@@ -104,7 +104,8 @@ FLIPPR_PEPTIDE_COLUMNS: list[str] = [
     "Protein Description",
     "Mapped Genes",
     "Mapped Proteins",
-    "Half Tryptic"
+    "Half Tryptic",
+    "Cleavage Type",
 ]
 
 FLIPPR_MODIFIED_PEPTIDE_COLUMNS: list[str] = [
@@ -122,23 +123,26 @@ FLIPPR_MODIFIED_PEPTIDE_COLUMNS: list[str] = [
     "Protein Description",
     "Mapped Genes",
     "Mapped Proteins",
-    "Half Tryptic"
+    "Half Tryptic",
+    "Cleavage Type",
 ]
 
 FLIPPR_COMBINE_KEY: dict[str, list] = {
     "CUT SITE": FLIPPR_CUT_SITE_COLUMNS,
     "PEPTIDE": FLIPPR_PEPTIDE_COLUMNS,
-    "MODIFIED PEPTIDE": FLIPPR_MODIFIED_PEPTIDE_COLUMNS
+    "MODIFIED PEPTIDE": FLIPPR_MODIFIED_PEPTIDE_COLUMNS,
 }
 
 # Thank you Holehouse lab!
-STANDARD_AA_CONVERSION = {'B':'N',
-                       'U':'C',
-                       'X':'G',
-                       'Z':'Q',
-                       '*':'',
-                       '-':'',
-                       ' ':''}
+STANDARD_AA_CONVERSION = {
+    "B": "N",
+    "U": "C",
+    "X": "G",
+    "Z": "Q",
+    "*": "",
+    "-": "",
+    " ": "",
+}
 
 # TODO: Add SILAC compatibility
 # SILAC_FP_FILES = None

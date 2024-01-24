@@ -6,11 +6,14 @@ from Bio.SeqIO.FastaIO import SimpleFastaParser
 from flippr.parameters import STANDARD_AA_CONVERSION
 
 # UniProtKB accession number validation regex (https://www.uniprot.org/help/accession_numbers)
-ACCESSION_RE = re.compile(r"[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}")
+ACCESSION_RE = re.compile(
+    r"[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}"
+)
+
 
 def _read_fasta(fasta_path: str | Path) -> pl.DataFrame:
     """
-    This function reads and parses Uniprot FASTA files and returns a Polars dataframe. 
+    This function reads and parses Uniprot FASTA files and returns a Polars dataframe.
 
     Args:
         fasta_path: Path to a Uniprot FASTA file.
@@ -23,7 +26,7 @@ def _read_fasta(fasta_path: str | Path) -> pl.DataFrame:
 
         ValueError: If the `fasta_path` does not point to a file with `.fasta` or `.faa` extensions.
     """
-    
+
     fasta_dict = dict()
     with open(fasta_path, "r") as open_fasta:
         fasta_gen = SimpleFastaParser(open_fasta)
@@ -31,22 +34,27 @@ def _read_fasta(fasta_path: str | Path) -> pl.DataFrame:
         for faa in fasta_gen:
             acc = __extract_accession(faa[0])
             seq = faa[1].upper()
-            
+
             for old_aa, new_aa in STANDARD_AA_CONVERSION.items():
                 seq = seq.replace(old_aa, new_aa)
-            
-            fasta_dict.update({acc:seq})
-    
-    fasta_df = pl.from_dict({"Protein ID": list(fasta_dict.keys()), "Sequence": list(fasta_dict.values())})
 
-    fasta_df = fasta_df.with_columns(pl.col("Protein ID").map_elements(__validate_accession).alias("Valid Accession"))
+            fasta_dict.update({acc: seq})
 
-    return fasta_df    
+    fasta_df = pl.from_dict(
+        {"Protein ID": list(fasta_dict.keys()), "Sequence": list(fasta_dict.values())}
+    )
+
+    fasta_df = fasta_df.with_columns(
+        pl.col("Protein ID").map_elements(__validate_accession).alias("Valid ID")
+    )
+
+    return fasta_df
+
 
 def __extract_accession(fasta_header: str) -> str:
     """
     This function extracts the accession number from a Uniprot FASTA header line.
-    
+
     e.g.
     The Uniprot FASTA header...
         >sp|P08200|IDH_ECOLI Isocitrate dehydrogenase
@@ -64,12 +72,13 @@ def __extract_accession(fasta_header: str) -> str:
 
     if "|" not in fasta_header:
         return fasta_header
-    
+
     try:
         return fasta_header.split("|")[1]
-    
+
     except IndexError:
         return fasta_header
+
 
 def __validate_accession(accession: str) -> bool:
     """
@@ -79,12 +88,12 @@ def __validate_accession(accession: str) -> bool:
 
     Args:
         accession: Accession number string | FASTA header string.
-    
+
     Returns:
         True | False
     """
 
     if re.fullmatch(ACCESSION_RE, accession) is not None:
         return True
-    
+
     return False

@@ -1,11 +1,11 @@
-# FLiPPR v0.0.2
+# FLiPPR v0.0.4
 
 ## Overview
 
 > [!IMPORTANT]  
 > FLiPPR currently does not incorporate metadata. This feature is coming in the next release.
 
-Welcome to the v0.0.2 release of FLiPPR! Please note that this version is an early release, and the code base is incomplete. We are actively working on enhancing and expanding the features.
+Welcome to FLiPPR! Please note that this version is an early release, and the code base is incomplete. We are actively working on enhancing and expanding the features.
 
 ## Table of Contents
 
