@@ -10,7 +10,6 @@ from .uniprot import fasta as _fasta
 
 # TODO TOC
 # Metadata integrations
-# Saving feature
 # Adjustable parameters for protein summary
 # Imputation schemes (much later)
 
@@ -25,7 +24,7 @@ class Study:
         lip (str | Path): Directory or path to the FragPipe LFQ output data for Limited Proteolysis (LiP) experiment data.
         trp (str | Path, optional): Directory or path to the FragPipe LFQ output data for Trypsin Only (TrP) experiment data. Defaults to None.
         fasta (str | Path, optional): Path to the FASTA file containing the same protein sequences used in the LiP/TrP experiments. Defaults to None.
-        method (str): Method used to quantify ion intensities in FragPipe. `lfq` - Label-free Quntification, `silac` - Stable Isotope Labelling (currently not incorporated). Defaults to `lfq`.
+        method (str): Method used to quantify ion intensities in FragPipe. `lfq` - Label-Free Quantification, `silac` - Stable Isotope Labelling (currently not incorporated). Defaults to `lfq`.
 
     Examples:
         Analysis of a single LiP dataset
@@ -90,7 +89,7 @@ class Study:
 
         """
 
-        return self._read_annotation(self.lip, "LiP")
+        return self.__read_annotation(self.lip, "LiP")
 
     @property
     def trp_samples(self) -> set | None:
@@ -100,7 +99,7 @@ class Study:
         """
 
         if self.trp is not None:
-            return self._read_annotation(self.trp, "TrP")
+            return self.__read_annotation(self.trp, "TrP")
 
         return None
 
@@ -147,14 +146,15 @@ class Study:
             }
         )
 
-    def run(self) -> dict[str, _flippr.Result]:
+    def run(self, max_missing_values: int = 1, aon_mean: float = 1e4, aon_std: float = 1e3) -> dict[str, _flippr.Result]:
         """ """
-
-        self.results = {pid: proc.run() for pid, proc in self.processes.items()}
+        
+        _kwargs = {"max_missing_values": max_missing_values, "aon_mean": aon_mean, "aon_std": aon_std}
+        self.results = {pid: proc.run(**_kwargs) for pid, proc in self.processes.items()}
 
         return self.results
 
-    def _read_annotation(self, liptrp: Path, label: str) -> set:
+    def __read_annotation(self, liptrp: Path, label: str) -> set:
         def __strip_fragpipe_repilicate(sample: str) -> str:
             return "_".join([_ for _ in sample.split("_")[:-1]])
 

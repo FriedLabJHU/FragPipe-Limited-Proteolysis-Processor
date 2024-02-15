@@ -4,15 +4,15 @@ import scipy as sp
 
 
 def _cull_intensities(
-    df: pl.DataFrame, ctrl: list[str], test: list[str], n_rep: int
+    df: pl.DataFrame, ctrl: list[str], test: list[str], n_rep: int, max_missing: int = 1
 ) -> pl.DataFrame:
     c_nz = df.select(ctrl).map_rows(np.count_nonzero).to_series()
     t_nz = df.select(test).map_rows(np.count_nonzero).to_series()
 
     # TODO: Allow the tolerance of `-1` to be changed
     df = df.filter(
-        ((c_nz == n_rep) & (t_nz >= n_rep - 1))
-        | ((c_nz >= n_rep - 1) & (t_nz == n_rep))
+          ((c_nz == n_rep) & (t_nz >= n_rep - max_missing))
+        | ((c_nz >= n_rep - max_missing) & (t_nz == n_rep))
         | ((c_nz == n_rep) & (t_nz == 0))
         | ((c_nz == 0) & (t_nz == n_rep))
     )
@@ -51,9 +51,9 @@ def _add_alt_hypothesis(
     return df
 
 
-# TODO: Make this more modular
+# TODO: Make this more modular with imputation scheme
 def _impute_aon_intensities(
-    df: pl.DataFrame, ctrl: list[str], test: list[str]
+    df: pl.DataFrame, ctrl: list[str], test: list[str], aon_mean: float, aon_std: float
 ) -> pl.DataFrame:
     df = df.with_columns(
         [
@@ -61,7 +61,7 @@ def _impute_aon_intensities(
                 pl.all_horizontal(pl.col(c_i).is_nan() for c_i in ctrl)
                 & pl.all_horizontal(pl.col(t_i).is_not_nan() for t_i in test)
             )
-            .then(pl.lit(sp.stats.norm.rvs(1e4, 1e3, 1)))
+            .then(pl.lit(sp.stats.norm.rvs(aon_mean, aon_std, 1)))
             .otherwise(pl.col(C_I))
             .alias(C_I)
             for C_I in ctrl

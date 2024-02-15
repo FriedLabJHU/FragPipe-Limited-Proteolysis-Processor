@@ -1,4 +1,4 @@
-# FLiPPR v0.0.4
+# FLiPPR v0.0.5
 
 ## Overview
 
@@ -39,19 +39,16 @@ To get started with FLiPPR, follow these steps:
 
 ## Usage
 
-> [!NOTE]  
-> Documentation is coming, I promise!
-
 1. Start a Study
 
 ```python
-import flippr as fp
+from flippr import Study
 
 # Pass the FragPipe output directory path from your LiP-MS study
-study = fp.Study(lip = "path/to/lip")
+study = Study(lip = "path/to/lip")
 
 # Include protein normalization factors from a Trypsin-only study
-study = fp.Study(lip = "path/to/lip", trp = "path/to/trp")
+study = Study(lip = "path/to/lip", trp = "path/to/trp")
 ```
 
 2. View the experimental sample annotations
@@ -75,9 +72,13 @@ study.add_process(1  , "Native", "Refolded_001_min")
 # Process with normalizations (only when `trp` is included in the study)
 study.add_process(5  , "Native", "Refolded_005_min", 3, "Native", "Refolded", 3)
 study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded", 3)
+
+# Process with different normalizations (only when `trp` is included in the study & contains all normalization conditions)
+study.add_process(5  , "Native", "Refolded_005_min", 3, "Native", "Refolded_005_min", 3)
+study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded_120_min", 3)
 ```
 
-4. Run your study & view your results
+4. Run your study
 
 ```python
 results = study.run()
@@ -85,18 +86,28 @@ results = study.run()
 # >  5: Results<Refolded_005_min_v_Native>,
 # >  120: Results<Refolded_120_min_v_Native>}
 
-# view polars dataframes
-results[1].ion
 
-results[5].cut_site
+# Change the numer of missing values tolerated by the study (only recommended for studies with +4 replicates in all conditions)
+results = study.run(max_missing_values = 2)
 
-results[120].protein_summary
+# Change the All-or-Nothing Gaussian imputation parameters
+# Defaults: aon_mean = 1e4, aon_std = 1e3
+results = study.run(aon_mean = 1e6, aon_std = 1e2)
+
 ```
 
-5. Save to Excel
+5. View your results
 
 ```python
-results[120].protein_summary.write_excel(f"{results[120].name}_flippr_summary.xlsx")
+# Viewing polars dataframes
+# 1 min time point ions
+results[1].ion
+
+# 5 min time point cut-sites
+results[5].cut_site
+
+# 120 min time point summary with metadata
+results[120].protein_summary
 ```
 
 ## Contributing

@@ -1,0 +1,688 @@
+{
+    "entryType": "UniProtKB reviewed (Swiss-Prot)",
+    "primaryAccession": "C1P609",
+    "uniProtkbId": "YOHP_ECOLI",
+    "entryAudit": {
+        "firstPublicDate": "2009-09-01",
+        "lastAnnotationUpdateDate": "2024-01-24",
+        "lastSequenceUpdateDate": "2009-05-26",
+        "entryVersion": 53,
+        "sequenceVersion": 1
+    },
+    "annotationScore": 2.0,
+    "organism": {
+        "scientificName": "Escherichia coli (strain K12)",
+        "taxonId": 83333,
+        "lineage": [
+            "Bacteria",
+            "Pseudomonadota",
+            "Gammaproteobacteria",
+            "Enterobacterales",
+            "Enterobacteriaceae",
+            "Escherichia"
+        ]
+    },
+    "proteinExistence": "1: Evidence at protein level",
+    "proteinDescription": {
+        "recommendedName": {
+            "fullName": {
+                "value": "Uncharacterized membrane protein YohP"
+            }
+        }
+    },
+    "genes": [
+        {
+            "geneName": {
+                "value": "yohP"
+            },
+            "orderedLocusNames": [
+                {
+                    "value": "b4679"
+                },
+                {
+                    "value": "JW5358.1"
+                }
+            ]
+        }
+    ],
+    "comments": [
+        {
+            "commentType": "SUBCELLULAR LOCATION",
+            "note": {
+                "texts": [
+                    {
+                        "value": "May be able to insert into the membrane in both orientations. Depletion of SecE or YidC does not affect membrane insertion"
+                    }
+                ]
+            },
+            "subcellularLocations": [
+                {
+                    "location": {
+                        "evidences": [
+                            {
+                                "evidenceCode": "ECO:0000305",
+                                "source": "PubMed",
+                                "id": "19121005"
+                            },
+                            {
+                                "evidenceCode": "ECO:0000305",
+                                "source": "PubMed",
+                                "id": "21778229"
+                            }
+                        ],
+                        "value": "Cell inner membrane",
+                        "id": "SL-0037"
+                    },
+                    "topology": {
+                        "evidences": [
+                            {
+                                "evidenceCode": "ECO:0000269",
+                                "source": "PubMed",
+                                "id": "19121005"
+                            },
+                            {
+                                "evidenceCode": "ECO:0000269",
+                                "source": "PubMed",
+                                "id": "21778229"
+                            }
+                        ],
+                        "value": "Single-pass membrane protein",
+                        "id": "SL-9904"
+                    }
+                }
+            ]
+        },
+        {
+            "texts": [
+                {
+                    "evidences": [
+                        {
+                            "evidenceCode": "ECO:0000269",
+                            "source": "PubMed",
+                            "id": "19121005"
+                        },
+                        {
+                            "evidenceCode": "ECO:0000269",
+                            "source": "PubMed",
+                            "id": "19734316"
+                        }
+                    ],
+                    "value": "Expressed in exponential phase, strongly induced in stationary phase (PubMed:19121005) and in minimal glucose or glycerol medium, in low oxygen, by SDS/EDTA (envelope stress) and by H(2)O(2) (PubMed:19734316) (at protein level)"
+                }
+            ],
+            "commentType": "INDUCTION"
+        }
+    ],
+    "features": [
+        {
+            "type": "Chain",
+            "location": {
+                "start": {
+                    "value": 1,
+                    "modifier": "EXACT"
+                },
+                "end": {
+                    "value": 27,
+                    "modifier": "EXACT"
+                }
+            },
+            "description": "Uncharacterized membrane protein YohP",
+            "featureId": "PRO_0000381986"
+        },
+        {
+            "type": "Transmembrane",
+            "location": {
+                "start": {
+                    "value": 3,
+                    "modifier": "EXACT"
+                },
+                "end": {
+                    "value": 23,
+                    "modifier": "EXACT"
+                }
+            },
+            "description": "Helical",
+            "evidences": [
+                {
+                    "evidenceCode": "ECO:0000255"
+                }
+            ]
+        },
+        {
+            "type": "Mutagenesis",
+            "location": {
+                "start": {
+                    "value": 2,
+                    "modifier": "EXACT"
+                },
+                "end": {
+                    "value": 2,
+                    "modifier": "EXACT"
+                }
+            },
+            "description": "Protein mostly C-terminus inside. Both orientations found; when associated with 24-G.",
+            "evidences": [
+                {
+                    "evidenceCode": "ECO:0000269",
+                    "source": "PubMed",
+                    "id": "21778229"
+                }
+            ],
+            "alternativeSequence": {
+                "originalSequence": "K",
+                "alternativeSequences": [
+                    "G"
+                ]
+            }
+        },
+        {
+            "type": "Mutagenesis",
+            "location": {
+                "start": {
+                    "value": 24,
+                    "modifier": "EXACT"
+                },
+                "end": {
+                    "value": 24,
+                    "modifier": "EXACT"
+                }
+            },
+            "description": "Protein mostly C-terminus outside. Both orientations found; when associated with 2-G.",
+            "evidences": [
+                {
+                    "evidenceCode": "ECO:0000269",
+                    "source": "PubMed",
+                    "id": "21778229"
+                }
+            ],
+            "alternativeSequence": {
+                "originalSequence": "K",
+                "alternativeSequences": [
+                    "G"
+                ]
+            }
+        }
+    ],
+    "keywords": [
+        {
+            "id": "KW-0997",
+            "category": "Cellular component",
+            "name": "Cell inner membrane"
+        },
+        {
+            "id": "KW-1003",
+            "category": "Cellular component",
+            "name": "Cell membrane"
+        },
+        {
+            "id": "KW-0472",
+            "category": "Cellular component",
+            "name": "Membrane"
+        },
+        {
+            "id": "KW-1185",
+            "category": "Technical term",
+            "name": "Reference proteome"
+        },
+        {
+            "id": "KW-0346",
+            "category": "Biological process",
+            "name": "Stress response"
+        },
+        {
+            "id": "KW-0812",
+            "category": "Domain",
+            "name": "Transmembrane"
+        },
+        {
+            "id": "KW-1133",
+            "category": "Domain",
+            "name": "Transmembrane helix"
+        }
+    ],
+    "references": [
+        {
+            "citation": {
+                "id": "9278503",
+                "citationType": "journal article",
+                "authors": [
+                    "Blattner F.R.",
+                    "Plunkett G. III",
+                    "Bloch C.A.",
+                    "Perna N.T.",
+                    "Burland V.",
+                    "Riley M.",
+                    "Collado-Vides J.",
+                    "Glasner J.D.",
+                    "Rode C.K.",
+                    "Mayhew G.F.",
+                    "Gregor J.",
+                    "Davis N.W.",
+                    "Kirkpatrick H.A.",
+                    "Goeden M.A.",
+                    "Rose D.J.",
+                    "Mau B.",
+                    "Shao Y."
+                ],
+                "citationCrossReferences": [
+                    {
+                        "database": "PubMed",
+                        "id": "9278503"
+                    },
+                    {
+                        "database": "DOI",
+                        "id": "10.1126/science.277.5331.1453"
+                    }
+                ],
+                "title": "The complete genome sequence of Escherichia coli K-12.",
+                "publicationDate": "1997",
+                "journal": "Science",
+                "firstPage": "1453",
+                "lastPage": "1462",
+                "volume": "277"
+            },
+            "referencePositions": [
+                "NUCLEOTIDE SEQUENCE [LARGE SCALE GENOMIC DNA]"
+            ],
+            "referenceComments": [
+                {
+                    "value": "K12 / MG1655 / ATCC 47076",
+                    "type": "STRAIN"
+                }
+            ]
+        },
+        {
+            "citation": {
+                "id": "16738553",
+                "citationType": "journal article",
+                "authors": [
+                    "Hayashi K.",
+                    "Morooka N.",
+                    "Yamamoto Y.",
+                    "Fujita K.",
+                    "Isono K.",
+                    "Choi S.",
+                    "Ohtsubo E.",
+                    "Baba T.",
+                    "Wanner B.L.",
+                    "Mori H.",
+                    "Horiuchi T."
+                ],
+                "citationCrossReferences": [
+                    {
+                        "database": "PubMed",
+                        "id": "16738553"
+                    },
+                    {
+                        "database": "DOI",
+                        "id": "10.1038/msb4100049"
+                    }
+                ],
+                "title": "Highly accurate genome sequences of Escherichia coli K-12 strains MG1655 and W3110.",
+                "publicationDate": "2006",
+                "journal": "Mol. Syst. Biol.",
+                "firstPage": "E1",
+                "lastPage": "E5",
+                "volume": "2"
+            },
+            "referencePositions": [
+                "NUCLEOTIDE SEQUENCE [LARGE SCALE GENOMIC DNA]"
+            ],
+            "referenceComments": [
+                {
+                    "value": "K12 / W3110 / ATCC 27325 / DSM 5911",
+                    "type": "STRAIN"
+                }
+            ]
+        },
+        {
+            "citation": {
+                "id": "19121005",
+                "citationType": "journal article",
+                "authors": [
+                    "Hemm M.R.",
+                    "Paul B.J.",
+                    "Schneider T.D.",
+                    "Storz G.",
+                    "Rudd K.E."
+                ],
+                "citationCrossReferences": [
+                    {
+                        "database": "PubMed",
+                        "id": "19121005"
+                    },
+                    {
+                        "database": "DOI",
+                        "id": "10.1111/j.1365-2958.2008.06495.x"
+                    }
+                ],
+                "title": "Small membrane proteins found by comparative genomics and ribosome binding site models.",
+                "publicationDate": "2008",
+                "journal": "Mol. Microbiol.",
+                "firstPage": "1487",
+                "lastPage": "1501",
+                "volume": "70"
+            },
+            "referencePositions": [
+                "IDENTIFICATION",
+                "SUBCELLULAR LOCATION",
+                "INDUCTION"
+            ],
+            "referenceComments": [
+                {
+                    "value": "K12 / MG1655 / ATCC 47076",
+                    "type": "STRAIN"
+                }
+            ]
+        },
+        {
+            "citation": {
+                "id": "19734316",
+                "citationType": "journal article",
+                "authors": [
+                    "Hemm M.R.",
+                    "Paul B.J.",
+                    "Miranda-Rios J.",
+                    "Zhang A.",
+                    "Soltanzad N.",
+                    "Storz G."
+                ],
+                "citationCrossReferences": [
+                    {
+                        "database": "PubMed",
+                        "id": "19734316"
+                    },
+                    {
+                        "database": "DOI",
+                        "id": "10.1128/jb.00872-09"
+                    }
+                ],
+                "title": "Small stress response proteins in Escherichia coli: proteins missed by classical proteomic studies.",
+                "publicationDate": "2010",
+                "journal": "J. Bacteriol.",
+                "firstPage": "46",
+                "lastPage": "58",
+                "volume": "192"
+            },
+            "referencePositions": [
+                "INDUCTION"
+            ],
+            "referenceComments": [
+                {
+                    "value": "K12 / MG1655 / ATCC 47076",
+                    "type": "STRAIN"
+                }
+            ]
+        },
+        {
+            "citation": {
+                "id": "21778229",
+                "citationType": "journal article",
+                "authors": [
+                    "Fontaine F.",
+                    "Fuchs R.T.",
+                    "Storz G."
+                ],
+                "citationCrossReferences": [
+                    {
+                        "database": "PubMed",
+                        "id": "21778229"
+                    },
+                    {
+                        "database": "DOI",
+                        "id": "10.1074/jbc.m111.245696"
+                    }
+                ],
+                "title": "Membrane localization of small proteins in Escherichia coli.",
+                "publicationDate": "2011",
+                "journal": "J. Biol. Chem.",
+                "firstPage": "32464",
+                "lastPage": "32474",
+                "volume": "286"
+            },
+            "referencePositions": [
+                "SUBCELLULAR LOCATION",
+                "TOPOLOGY",
+                "MUTAGENESIS OF LYS-2 AND LYS-24"
+            ],
+            "referenceComments": [
+                {
+                    "value": "K12 / MG1655 / ATCC 47076",
+                    "type": "STRAIN"
+                }
+            ]
+        }
+    ],
+    "uniProtKBCrossReferences": [
+        {
+            "database": "EMBL",
+            "id": "U00096",
+            "properties": [
+                {
+                    "key": "ProteinId",
+                    "value": "ACO60001.1"
+                },
+                {
+                    "key": "Status",
+                    "value": "-"
+                },
+                {
+                    "key": "MoleculeType",
+                    "value": "Genomic_DNA"
+                }
+            ]
+        },
+        {
+            "database": "EMBL",
+            "id": "AP009048",
+            "properties": [
+                {
+                    "key": "ProteinId",
+                    "value": "-"
+                },
+                {
+                    "key": "Status",
+                    "value": "NOT_ANNOTATED_CDS"
+                },
+                {
+                    "key": "MoleculeType",
+                    "value": "Genomic_DNA"
+                }
+            ]
+        },
+        {
+            "database": "RefSeq",
+            "id": "WP_000691708.1",
+            "properties": [
+                {
+                    "key": "NucleotideSequenceId",
+                    "value": "NZ_SSUS01000002.1"
+                }
+            ]
+        },
+        {
+            "database": "RefSeq",
+            "id": "YP_002791249.1",
+            "properties": [
+                {
+                    "key": "NucleotideSequenceId",
+                    "value": "NC_000913.3"
+                }
+            ]
+        },
+        {
+            "database": "AlphaFoldDB",
+            "id": "C1P609",
+            "properties": [
+                {
+                    "key": "Description",
+                    "value": "-"
+                }
+            ]
+        },
+        {
+            "database": "STRING",
+            "id": "511145.b4679",
+            "properties": [
+                {
+                    "key": "Description",
+                    "value": "-"
+                }
+            ]
+        },
+        {
+            "database": "PaxDb",
+            "id": "511145-b4679",
+            "properties": [
+                {
+                    "key": "Description",
+                    "value": "-"
+                }
+            ]
+        },
+        {
+            "database": "EnsemblBacteria",
+            "id": "ACO60001",
+            "properties": [
+                {
+                    "key": "ProteinId",
+                    "value": "ACO60001"
+                },
+                {
+                    "key": "GeneId",
+                    "value": "b4679"
+                }
+            ]
+        },
+        {
+            "database": "GeneID",
+            "id": "7751636",
+            "properties": [
+                {
+                    "key": "Description",
+                    "value": "-"
+                }
+            ]
+        },
+        {
+            "database": "GeneID",
+            "id": "83589213",
+            "properties": [
+                {
+                    "key": "Description",
+                    "value": "-"
+                }
+            ]
+        },
+        {
+            "database": "KEGG",
+            "id": "eco:b4679",
+            "properties": [
+                {
+                    "key": "Description",
+                    "value": "-"
+                }
+            ]
+        },
+        {
+            "database": "PATRIC",
+            "id": "fig|83333.103.peg.3008",
+            "properties": [
+                {
+                    "key": "GeneDesignation",
+                    "value": "-"
+                }
+            ]
+        },
+        {
+            "database": "InParanoid",
+            "id": "C1P609",
+            "properties": [
+                {
+                    "key": "Description",
+                    "value": "-"
+                }
+            ]
+        },
+        {
+            "database": "BioCyc",
+            "id": "EcoCyc:MONOMER0-2879",
+            "properties": [
+                {
+                    "key": "Description",
+                    "value": "-"
+                }
+            ]
+        },
+        {
+            "database": "PRO",
+            "id": "PR:C1P609",
+            "properties": [
+                {
+                    "key": "Description",
+                    "value": "-"
+                }
+            ]
+        },
+        {
+            "database": "Proteomes",
+            "id": "UP000000318",
+            "properties": [
+                {
+                    "key": "Component",
+                    "value": "Chromosome"
+                }
+            ]
+        },
+        {
+            "database": "Proteomes",
+            "id": "UP000000625",
+            "properties": [
+                {
+                    "key": "Component",
+                    "value": "Chromosome"
+                }
+            ]
+        },
+        {
+            "database": "GO",
+            "id": "GO:0005886",
+            "properties": [
+                {
+                    "key": "GoTerm",
+                    "value": "C:plasma membrane"
+                },
+                {
+                    "key": "GoEvidenceType",
+                    "value": "IDA:EcoCyc"
+                }
+            ],
+            "evidences": [
+                {
+                    "evidenceCode": "ECO:0000314",
+                    "source": "PubMed",
+                    "id": "21778229"
+                }
+            ]
+        }
+    ],
+    "sequence": {
+        "value": "MKIILWAVLIIFLIGLLVVTGVFKMIF",
+        "length": 27,
+        "molWeight": 3092,
+        "crc64": "C48BF16B085ADF08",
+        "md5": "F904AB5A2ED008D88229CD0DABCA5D7B"
+    },
+    "extraAttributes": {
+        "countByCommentType": {
+            "SUBCELLULAR LOCATION": 1,
+            "INDUCTION": 1
+        },
+        "countByFeatureType": {
+            "Chain": 1,
+            "Transmembrane": 1,
+            "Mutagenesis": 2
+        },
+        "uniParcId": "UPI00016A018D"
+    }
+}

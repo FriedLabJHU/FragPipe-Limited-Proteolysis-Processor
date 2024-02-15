@@ -19,12 +19,12 @@ keywords = [
   "proteomics"
 ]
 authors = [
-  { name = "Edgar Manriquez-Sandoval", email = "emanriq1@jhu.edu" },
+  { name = "Edgar Manriquez-Sandoval", email = "emanriq1@jhu.edu"},
 ]
 maintainers = [
   {name = "FriedLab@JHU", email = "friedlab.jhu@gmail.com"},
   {name = "Stephen D. Fried", email = "sdfried@jhu.edu"},
-  { name = "Edgar Manriquez-Sandoval", email = "emanriq1@jhu.edu" },
+  { name = "Edgar Manriquez-Sandoval", email = "emanriq1@jhu.edu"},
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -36,8 +36,10 @@ classifiers = [
 ]
 dependencies = [
   "biopython",
+  "h2",
   "httpx",
   "matplotlib",
+  "nest_asyncio",
   "numpy",
   "pandas",
   "polars",
@@ -73,6 +75,9 @@ cov = [
   "test-cov",
   "cov-report",
 ]
+
+[tool.setuptools.package-data]
+"flippr" = ["py.typed"]
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.10", "3.11", "3.12"]

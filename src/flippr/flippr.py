@@ -72,15 +72,15 @@ class Process:
     def name(self) -> str:
         return f"{self._lip_ctrl_name}_v_{self._lip_test_name}"
 
-    def run(self):
-        result = Result(self)
+    def run(self, **kwargs):
+        result = Result(self, **kwargs)
         return result
 
 
 class Result:
     """Organizes a FLiPPR Result"""
 
-    def __init__(self, cls: Process) -> None:
+    def __init__(self, cls: Process, **kwargs) -> None:
         """doctstring"""
 
         self.name = cls.name
@@ -115,7 +115,8 @@ class Result:
             self._ions, 
             self._lip_ctrl_ints, 
             self._lip_test_ints, 
-            cls._n_rep
+            cls._n_rep,
+            kwargs.get("max_missing_values", 1)
         )
         self._ions = _functions._add_alt_hypothesis(
             self._ions, 
@@ -126,7 +127,9 @@ class Result:
         self._ions = _functions._impute_aon_intensities(
             self._ions,
             self._lip_ctrl_ints, 
-            self._lip_test_ints
+            self._lip_test_ints,
+            kwargs.get("aon_mean", 1e4),
+            kwargs.get("aon_std", 1e3)
         )
         self._ions = _functions._add_start_end_aa(self._ions)
         self._ions = _functions._add_half_trpytic(self._ions)
@@ -189,7 +192,9 @@ class Result:
             self._norm_factors = _functions._impute_aon_intensities(
                 self._norm_factors,
                 self._trp_ctrl_ints,
-                self._trp_test_ints
+                self._trp_test_ints,
+                kwargs.get("aon_mean", 1e4),
+                kwargs.get("aon_std", 1e3)
             )
             self._norm_factors = _functions._add_ttest(
                 self._norm_factors,

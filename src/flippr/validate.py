@@ -45,15 +45,22 @@ def _validate_sample_annotation(
         ion_header = next(ion_file).strip().split("\t")
         pro_header = next(pro_file).strip().split("\t")
 
-    sample_reps = [f"{sample}_{n+1} Intensity" for n in range(n_rep)]
-    for sample_rep in sample_reps:
+    if n_rep > 1:
+        sample_ion_reps = [f"{sample}_{n+1} Intensity" for n in range(n_rep)]
+        sample_prot_reps = [f"{sample}_{n+1} MaxLFQ Intensity" for n in range(n_rep)]
+
+    elif n_rep == 1:
+        sample_ion_reps = [f"{sample} Intensity"]
+        sample_prot_reps = [f"{sample} MaxLFQ Intensity"]
+
+
+    for sample_rep in sample_ion_reps:
         if sample_rep not in ion_header:
             raise ValueError(
                 f'"{sample}" was not found in `{ion_path.resolve()}`. Set `{label}` to valid sample input.'
             )
 
-    sample_reps = [f"{sample}_{n+1} MaxLFQ Intensity" for n in range(n_rep)]
-    for sample_rep in sample_reps:
+    for sample_rep in sample_prot_reps:
         if sample_rep not in pro_header:
             raise ValueError(
                 f'"{sample}" was not found in `{ion_path.resolve()}`. Set `{label}` to valid sample input.'

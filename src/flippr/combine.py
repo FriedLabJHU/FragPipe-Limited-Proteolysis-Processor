@@ -11,7 +11,6 @@ COMB_NAME_COLUMN = {
     "MODIFIED PEPTIDE": "Modified Sequence",
 }
 
-# TODO: Fix this so that I don't have to use `meta`
 def combine_by(df: pl.DataFrame, by: str, fc: str) -> pl.DataFrame:
 
     combined = (

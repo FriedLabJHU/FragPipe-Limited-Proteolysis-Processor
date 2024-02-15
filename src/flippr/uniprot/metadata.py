@@ -1,12 +1,18 @@
 import polars as pl
 import asyncio
+import nest_asyncio
 import httpx
 import json
-import Bio.SeqUtils.ProtParam
-import pprint
+from Bio.SeqUtils.ProtParam import ProteinAnalysis
+
+nest_asyncio.apply()
+
+def n_batch(x: pl.Series, n: int):
+    for i in range(0, len(x), n):
+        yield x[i : i + n]
 
 
-async def uniprot_api(acc):
+async def uniprot_api(acc: str) -> str:
     async with httpx.AsyncClient(
         base_url="https://rest.uniprot.org/uniprotkb", timeout=None
     ) as client:
@@ -14,13 +20,26 @@ async def uniprot_api(acc):
         return response.text
 
 
-async def uniprotkb(accessions):
+async def uniprotkb(accessions: pl.Series) -> list:
     tasks = [uniprot_api(acc) for acc in accessions]
     return await asyncio.gather(*tasks)
 
 
-accessions = ["P04949", "P04994", "P05523", "P06611", "U3PVA8"]
+# Parse JSON inside of this function
+def uniprot_json(accessions: pl.Series):
+    for acc in n_batch(accessions, 200):
+        accessions_json = asyncio.run(uniprotkb(acc))
 
-aa = asyncio.run(uniprotkb(accessions))
 
-pprint.pprint(json.loads(aa[1]))
+def bio_metadata(fasta: pl.DataFrame) -> pl.DataFrame:
+    return fasta.with_columns(
+        pl.col("Sequence").map_elements(lambda x: ProteinAnalysis(x))
+        .alias("Analysis"),
+    ).with_columns(
+        pl.col("Analysis").map_elements(lambda x: x.isoelectric_point())
+        .alias("pI"),
+        pl.col("Analysis").map_elements(lambda x: x.molecular_weight())
+        .alias("MW (Da)"),
+        pl.col("Sequence").str.len_chars()
+        .alias("Len (aa)"),
+    ).drop("Analysis")
