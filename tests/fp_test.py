@@ -20,7 +20,7 @@ study.add_process(1  , "Native", "Refolded_001_min", 3, "Native", "Refolded", 3)
 study.add_process(5  , "Native", "Refolded_005_min", 3, "Native", "Refolded", 3)
 study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded", 3)
 
-study.run(aon_mean=1e9)
+study.run()
 
 for result in study.results.values():
     name = result.name
