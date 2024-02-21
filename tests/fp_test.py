@@ -21,6 +21,6 @@ for result in study.results.values():
     result.protein_summary.write_excel(f"{name}_protein_summary.xlsx", freeze_panes = (1,0))
     result.ion.write_excel(f"{name}_ion.xlsx", freeze_panes = (1,0))
     result.peptide.write_excel(f"{name}_peptide.xlsx", freeze_panes = (1,0))
-    result.modified_peptide.write_excel(f"{name}_peptide.xlsx", freeze_panes = (1,0))
+    result.modified_peptide.write_excel(f"{name}_modified_peptide.xlsx", freeze_panes = (1,0))
     result.cut_site.write_excel(f"{name}_cut_site.xlsx", freeze_panes = (1,0))
     
