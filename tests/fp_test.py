@@ -1,9 +1,4 @@
-import polars as pl
-import asyncio
 import flippr as fp
-import httpx
-import json
-import Bio.SeqUtils.ProtParam
 from pathlib import Path
 
 
@@ -20,6 +15,7 @@ study.add_process(1  , "Native", "Refolded_001_min", 3, "Native", "Refolded", 3)
 # study.add_process(5  , "Native", "Refolded_005_min", 3, "Native", "Refolded", 3)
 # study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded", 3)
 
+study.run()
 study.run()
 
 for result in study.results.values():
