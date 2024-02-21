@@ -17,8 +17,6 @@ def _cull_intensities(
         | ((c_nz == 0) & (t_nz == n_rep))
     )
 
-    df = __null_to_nan(df, ctrl, test)
-
     return df
 
 
@@ -48,6 +46,8 @@ def _add_alt_hypothesis(
         .alias("Alternative Hypothesis")
     )
 
+    df = __null_to_nan(df, ctrl, test)
+
     return df
 
 
@@ -72,7 +72,7 @@ def _impute_aon_intensities(
                 pl.all_horizontal(pl.col(c_i).is_not_nan() for c_i in ctrl)
                 & pl.all_horizontal(pl.col(t_i).is_nan() for t_i in test)
             )
-            .then(pl.lit(sp.stats.norm.rvs(1e4, 1e3, 1)))
+            .then(pl.lit(sp.stats.norm.rvs(aon_mean, aon_std, 1)))
             .otherwise(pl.col(T_I))
             .alias(T_I)
             for T_I in test
@@ -130,8 +130,8 @@ def _add_ratio(df: pl.DataFrame, ctrl: list[str], test: list[str]) -> pl.DataFra
         )
         .map_rows(
             lambda x: (
-                np.nanstd(x[1]) / np.nanmean(x[1]),
-                np.nanmean(x[1]) / np.nanmean(x[0]),
+                np.nanstd(x[1]) / np.nanmean(x[1]), # CV
+                np.nanmean(x[1]) / np.nanmean(x[0]), # FC
             )
         )
         .rename({"column_0": "CV", "column_1": "FC"})
@@ -145,15 +145,16 @@ def _normalize_ratios(lip_df: pl.DataFrame, trp_df: pl.DataFrame) -> pl.DataFram
 
     norm = norm.select(
         pl.col("Protein ID"),
-        pl.when((-pl.col("P-value").log10() > 2) & (pl.col("FC").log(base=2).abs() > 1))
+        pl.when((-pl.col("P-value").log10() >= 2) & (pl.col("FC").log(base=2).abs() >= 1))
         .then(pl.col("FC"))
         .otherwise(pl.lit(0.0))
         .alias("Normalization Factor"),
     )
 
-    lip_df = lip_df.join(norm, on="Protein ID")
+    lip_df = lip_df.join(norm, on="Protein ID", how="left")
 
     lip_df = lip_df.with_columns(
+        pl.col("Normalization Factor").fill_null(strategy="zero"),
         pl.when(pl.col("Normalization Factor") > 0)
         .then(pl.col("FC") / pl.col("Normalization Factor"))
         .otherwise(pl.col("FC"))
@@ -179,9 +180,34 @@ def _add_half_trpytic(df: pl.DataFrame) -> pl.DataFrame:
         pl.when(
             (
                 pl.col("Prev AA").is_in(["K", "R", "-"])
+                & pl.col("End AA").is_in(["K", "R"])
+                & ~pl.col("Next AA").is_in(["-"])
+            )
+            |
+            (
+                pl.col("Prev AA").is_in(["K", "R"])
+                & pl.col("Next AA").is_in(["-"])
+            )
+            |
+            (
+                pl.col("Prev AA").is_in(["M"])
+                & (pl.col("Start") == 2)
+                & pl.col("End AA").is_in(["K", "R"])
+            ) # catches edge case where N-term Met is removed
+        )
+        .then(pl.lit("FULL_TRP"))
+        .when(
+            (
+                pl.col("Prev AA").is_in(["K", "R", "-"])
                 & ~pl.col("End AA").is_in(["K", "R"])
                 & ~pl.col("Next AA").is_in(["-"])
             )
+            |
+            (
+                pl.col("Prev AA").is_in(["M"])
+                & (pl.col("Start") == 2)
+                & ~pl.col("End AA").is_in(["K", "R"])
+            ) # catches edge case where N-term Met is removed
         )
         .then(pl.lit("C_SEMI"))
         .when(
@@ -194,22 +220,10 @@ def _add_half_trpytic(df: pl.DataFrame) -> pl.DataFrame:
             (
                 ~pl.col("Prev AA").is_in(["K", "R", "-"])
                 & pl.col("Next AA").is_in(["-"])
+                & ~(pl.col("Prev AA").is_in(["M"]) & (pl.col("Start") == 2)) # prevents edge case where N-term Met is removed
             )
         )
         .then(pl.lit("N_SEMI"))
-        .when(
-            (
-                pl.col("Prev AA").is_in(["K", "R", "-"])
-                & pl.col("End AA").is_in(["K", "R"])
-                & ~pl.col("Next AA").is_in(["-"])
-            )
-            |
-            (
-                pl.col("Prev AA").is_in(["K", "R"])
-                & pl.col("Next AA").is_in(["-"])
-            )
-        )
-        .then(pl.lit("FULL_TRP"))
         .otherwise(pl.lit(None))
         .alias("Cleavage Type")
     ).filter(

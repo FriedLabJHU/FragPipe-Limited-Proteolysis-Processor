@@ -76,10 +76,13 @@ def summary_by(df: pl.DataFrame, by: str, fc: str) -> pl.DataFrame:
             pl.col("CV")
             .filter(
                 (
-                    (pl.col(f"Log2 {fc}").abs() > 1)
-                    & (pl.col("-Log10 P-value") > -np.log10(0.01))
+                    (pl.col(f"Log2 {fc}").abs() >= 1)
+                    & (pl.col("-Log10 P-value") >= -np.log10(0.01))
                 )
-                | ((pl.col(f"Log2 {fc}").abs() > 6) & (pl.col("-Log10 P-value") > 1.8))
+                | (
+                    (pl.col(f"Log2 {fc}").abs() >= 6) 
+                    & (pl.col("-Log10 P-value") >= 1.8)
+                )
             )
             .len()
         )
@@ -92,8 +95,8 @@ def summary_by(df: pl.DataFrame, by: str, fc: str) -> pl.DataFrame:
             pl.col("CV")
             .filter(
                 (
-                    (pl.col(f"Log2 {fc}").abs() > 1)
-                    & (pl.col("-Log10 Adj. P-value") > -np.log10(0.05))
+                    (pl.col(f"Log2 {fc}").abs() >= 1)
+                    & (pl.col("-Log10 Adj. P-value") >= -np.log10(0.05))
                 )
             )
             .len()

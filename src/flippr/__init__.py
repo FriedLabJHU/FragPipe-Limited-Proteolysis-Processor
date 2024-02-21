@@ -10,8 +10,6 @@ from .uniprot import fasta as _fasta
 
 # TODO TOC
 # Metadata integrations
-# Adjustable parameters for protein summary
-# Imputation schemes (much later)
 
 
 class Study:
@@ -124,7 +122,30 @@ class Study:
         trp_test: str | None = None,
         trp_n_rep: int | None = None,
     ) -> None:
-        """ """
+        """
+        Adding a process to calculate the fold-change between test and control conditions.
+        Normalization is optional and must include a TrP experiment in the `Study` set-up.
+
+        Args:
+            pid (Any): Process ID used to index the `Study().results` dictionary after running `Study().run()`.
+            lip_ctrl (str): Control condition sample name from the LiP experiment.
+            lip_test (str): Test condition sample name from the LiP experiment.
+            n_rep (int): Number of replicates in the LiP experiment.
+            trp_ctrl (str, optional): Control condition sample name from the TrP experiment.
+            trp_test (str, optional): Test condition sample name from the TrP experiment.
+            trp_n_rep (int, optional): Number of replicates in the TrP experiment.
+
+        Examples:
+            Simple fold-change calculation between two conditions
+            >>> study.add_process("sample", "WT", "Drug", 3)
+
+            Fold-change calculation with normalization
+            >>> study.add_process("sample", "WT", "Drug", 3, "WT_TrP", "DMSO_TrP", 3)
+
+            Add multiple processes to the same study
+            >>> study.add_process("cond_1", "WT", "Cond1", 5)
+            >>> study.add_process("cond_2", "WT", "Cond2", 5, "WT_TrP", "DMSO_TrP", 5)
+        """
 
         if pid is None:
             pid = self._pid
@@ -147,7 +168,14 @@ class Study:
         )
 
     def run(self, max_missing_values: int = 1, aon_mean: float = 1e4, aon_std: float = 1e3) -> dict[str, _flippr.Result]:
-        """ """
+        """
+        Run the processes added to the study.
+
+        Args:
+            max_missing_values (int, optional): Number of tolerated missing replicate ion intensities.
+            aon_mean (float, optional): Gaussian imputation mean for All-or-Nothing ions.
+            aon_std (floar, optional): Gaussian imputation standard deviation for All-or-Nothing ions.
+        """
         
         _kwargs = {"max_missing_values": max_missing_values, "aon_mean": aon_mean, "aon_std": aon_std}
         self.results = {pid: proc.run(**_kwargs) for pid, proc in self.processes.items()}

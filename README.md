@@ -1,4 +1,4 @@
-# FLiPPR v0.0.5
+# FLiPPR v0.0.6
 
 ## Overview
 
@@ -81,11 +81,8 @@ study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded_120_
 4. Run your study
 
 ```python
+# Running a study populates the `Study().results` dictionary
 results = study.run()
-# > {1: Results<Refolded_001_min_v_Native>,
-# >  5: Results<Refolded_005_min_v_Native>,
-# >  120: Results<Refolded_120_min_v_Native>}
-
 
 # Change the numer of missing values tolerated by the study (only recommended for studies with +4 replicates in all conditions)
 results = study.run(max_missing_values = 2)
