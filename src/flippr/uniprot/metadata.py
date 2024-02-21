@@ -42,4 +42,4 @@ def bio_metadata(fasta: pl.DataFrame) -> pl.DataFrame:
         .alias("MW (Da)"),
         pl.col("Sequence").str.len_chars()
         .alias("Len (aa)"),
-    ).drop("Analysis")
+    ).drop(["Analysis", "Valid ID"])

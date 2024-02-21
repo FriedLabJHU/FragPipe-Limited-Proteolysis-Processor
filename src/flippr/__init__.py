@@ -154,6 +154,7 @@ class Study:
         self.processes.update(
             {
                 pid: _flippr.Process(
+                    self.fasta,
                     self.lip,
                     self.trp,
                     pid,

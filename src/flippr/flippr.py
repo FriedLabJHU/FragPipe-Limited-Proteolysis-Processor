@@ -6,6 +6,7 @@ from functools import cached_property
 from . import validate as _validate
 from . import combine as _combine
 from . import functions as _functions
+from .uniprot import metadata as _metadata
 from .parameters import LFQ_FP_CONSTANT_ION_COLUMNS, LFQ_FP_VARIABLE_ION_COLUMNS
 from .parameters import LFQ_FP_CONSTANT_PROTEIN_COLUMNS, LFQ_FP_VARIABLE_PROTEIN_COLUMNS
 from .parameters import FLIPPR_PROTEIN_SUMMARY_COLUMNS
@@ -16,6 +17,7 @@ class Process:
 
     def __init__(
         self,
+        fasta: pl.DataFrame,
         lip_path: Path,
         trp_path: Path | None,
         pid: object | None,
@@ -52,6 +54,7 @@ class Process:
         _validate._validate_sample_annotation(lip_path, lip_ctrl, n_rep, "lip_ctrl")
         _validate._validate_sample_annotation(lip_path, lip_test, n_rep, "lip_test")
 
+        self._fasta: pl.DataFrame | None = fasta
         self._pid: object = pid
 
         self._lip_path: Path = lip_path
@@ -228,6 +231,13 @@ class Result:
         if self._is_trp_norm:
             self._fc = "Normalized FC"
 
+        self._fasta = cls._fasta
+
+    def _add_metadata(self, df: pl.DataFrame):
+        if self._fasta is not None:
+            md = _metadata.bio_metadata(self._fasta)
+            return df.join(md, on="Protein ID")
+    
     @cached_property
     def modified_peptide(self):
         return _combine.combine_by(self.ion, by="MODIFIED PEPTIDE", fc=self._fc)
@@ -254,8 +264,14 @@ class Result:
 
         __cut = _combine.summary_by(self.cut_site, by="Cut Sites", fc=self._fc)
 
-        return (
-            self._proteins.join(__mod, on="Protein ID")
+        self._proteins = (
+            self._proteins
+            .join(__mod, on="Protein ID")
             .join(__pep, on="Protein ID")
             .join(__cut, on="Protein ID")
         )
+
+        if self._fasta is not None:
+            return self._add_metadata(self._proteins)
+        else:
+            return self._proteins 

@@ -1,9 +1,6 @@
-# FLiPPR v0.0.6
+# FLiPPR v0.0.7
 
 ## Overview
-
-> [!IMPORTANT]  
-> FLiPPR currently does not incorporate metadata. This feature is coming in the next release.
 
 Welcome to FLiPPR! Please note that this version is an early release, and the code base is incomplete. We are actively working on enhancing and expanding the features.
 
@@ -49,6 +46,9 @@ study = Study(lip = "path/to/lip")
 
 # Include protein normalization factors from a Trypsin-only study
 study = Study(lip = "path/to/lip", trp = "path/to/trp")
+
+# Including a FASTA file will add metadata for pI and MW and remove contaminants
+study = Study(lip = "path/to/lip", trp = "path/to/trp", fasta = "UP000000625_83333.fasta")
 ```
 
 2. View the experimental sample annotations
