@@ -113,10 +113,14 @@ results[120].protein_summary
 
 ## License
 
-This project is licensed under the MIT License. Feel free to use, modify, and distribute the code according to the terms specified in the license.
+This project is licensed under the CC BY-NC-ND 4.0 License. Feel free to use the code according to the terms specified in the license.
 
 Thank you for your interest in FLiPPR! If you encounter any issues or have suggestions, please open an issue. We appreciate your feedback!
 
 ## Citation
 
-:safety_vest: :hammer_and_wrench: Under construction :hammer_and_wrench: :safety_vest:	
+> FLiPPR: A Processor for Limited Proteolysis (LiP) Mass Spectrometry Data Sets Built on FragPipe
+Edgar Manriquez-Sandoval, Joy Brewer, Gabriela Lule, Samanta Lopez, and Stephen D. Fried
+Journal of Proteome Research
+DOI: 10.1021/acs.jproteome.3c00887
+> 
