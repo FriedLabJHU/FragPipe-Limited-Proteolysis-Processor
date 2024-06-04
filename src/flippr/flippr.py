@@ -30,29 +30,9 @@ class Process:
     ) -> None:
         """docstring"""
 
-        _validate._validate_replicate_value(n_rep, "n_rep")
-
-        if trp_n_rep is None:
-            trp_n_rep = n_rep
-        else:
-            _validate._validate_replicate_value(trp_n_rep, "trp_n_rep")
-
         self._is_trp_norm = all(
-            trp is not None for trp in [trp_path, trp_ctrl, trp_test]
+            trp is not None for trp in [trp_path, trp_ctrl, trp_test, trp_n_rep]
         )
-
-        if trp_path is not None:
-            if trp_ctrl is not None:
-                _validate._validate_sample_annotation(
-                    trp_path, trp_ctrl, trp_n_rep, "trp_ctrl"
-                )
-            if trp_test is not None:
-                _validate._validate_sample_annotation(
-                    trp_path, trp_test, trp_n_rep, "trp_test"
-                )
-
-        _validate._validate_sample_annotation(lip_path, lip_ctrl, n_rep, "lip_ctrl")
-        _validate._validate_sample_annotation(lip_path, lip_test, n_rep, "lip_test")
 
         self._fasta: pl.DataFrame | None = fasta
         self._pid: object = pid
@@ -145,13 +125,7 @@ class Result:
             self._ions, self._lip_ctrl_ints, self._lip_test_ints
         )
 
-        if (
-            cls._is_trp_norm
-            and cls._trp_path is not None
-            and cls._trp_ctrl is not None
-            and cls._trp_test is not None
-            and cls._trp_n_rep is not None
-        ):
+        if cls._is_trp_norm:
             
             self._trp_ctrl_cols = [
                 f"{rep} {var}"

@@ -3,14 +3,11 @@ import polars as pl
 from pathlib import Path
 from functools import cached_property
 
-from typing import Union, Optional
-
 from . import flippr as _flippr
 from . import validate as _validate
 from .parameters import rcParams
 from .uniprot import fasta as _fasta
 
-type StrPath = str | Path
 
 class Study:
     """
@@ -25,13 +22,13 @@ class Study:
         method (str): Method used to quantify ion intensities in FragPipe. `lfq` - Label-Free Quantification, `silac` - Stable Isotope Labelling (currently not incorporated). Defaults to `lfq`.
 
     Examples:
-        Analysis of a single LiP dataset
+        Analysis of a single dataset
         >>> flippr.Study(lip = "PXD025926/FragPipe/LiP_LFQ")
 
-        Analysis of a single LiP dataset with metadata integration
+        Analysis of a single dataset with metadata integration
         >>> flippr.Study(lip = "PXD025926/FragPipe/LiP_LFQ", fasta = "UP000000625.fasta")
 
-        Including protein-level normalization from TrP data
+        Including protein-level normalization from trypsin-only data
         >>> flippr.Study(lip = "PXD025926/FragPipe/LiP_LFQ", trp = "PXD025926/FragPipe/TrP_LFQ")
 
     """
@@ -68,7 +65,7 @@ class Study:
 
         """
 
-        if self.trp_samples is not None:
+        if self.trp is not None:
             return {"LiP": self.lip_samples, "TrP": self.trp_samples}
 
         return {"LiP": self.lip_samples}
@@ -80,19 +77,16 @@ class Study:
 
         """
 
-        return self.__read_annotation(self.lip, "LiP")
+        return self.__read_annotation(self.lip)
 
     @property
-    def trp_samples(self) -> set | None:
+    def trp_samples(self) -> set:
         """
         Returns the names of the samples or experimental annotations found in the FragPipe outputs for TrP datasets.
 
         """
 
-        if self.trp is not None:
-            return self.__read_annotation(self.trp, "TrP")
-
-        return None
+        return self.__read_annotation(self.trp)
 
     @cached_property
     def fasta(self) -> pl.DataFrame | None:
@@ -106,15 +100,7 @@ class Study:
         return None
 
     def add_process(
-        self,
-        pid: object | None,
-        lip_ctrl: str,
-        lip_test: str,
-        n_rep: int,
-        trp_ctrl: str | None = None,
-        trp_test: str | None = None,
-        trp_n_rep: int | None = None,
-    ) -> None:
+        self, pid: object | None, lip_ctrl: str, lip_test: str, n_rep: int, trp_ctrl: str | None = None, trp_test: str | None = None, trp_n_rep: int | None = None) -> None:
         """
         Adding a process to calculate the fold-change between test and control conditions.
         Normalization is optional and must include a TrP experiment in the `Study` set-up.
@@ -161,16 +147,17 @@ class Study:
             }
         )
 
-    def run(self) -> dict[str, _flippr.Result]:
+    def run(self) -> dict[object: _flippr.Result]:
         """
         Run the processes added to the study.
+        Study parameters can be changed by editing the `flippr.rcParams` dictionary.
         """
         
         self.results = {pid: proc.run(rcParams) for pid, proc in self.processes.items()}
 
         return self.results
 
-    def __read_annotation(self, liptrp: Path, label: str) -> set:
+    def __read_annotation(self, liptrp: Path) -> set:
         def __strip_fragpipe_repilicate(sample: str) -> str:
             return "_".join([_ for _ in sample.split("_")[:-1]])
 
@@ -182,6 +169,4 @@ class Study:
             as_series=False
         )
 
-        return set(
-            __strip_fragpipe_repilicate(sample) for sample in annotation_dict["sample"]
-        )
+        return set(__strip_fragpipe_repilicate(sample) for sample in annotation_dict["sample"])

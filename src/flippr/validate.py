@@ -20,53 +20,6 @@ def _validate_study(
     return lip, trp, fasta, method
 
 
-def _validate_replicate_value(n_rep: int, label: str) -> None:
-    """
-    Validate replicate value.
-    """
-
-    if not isinstance(n_rep, int):
-        raise TypeError(
-            f'`{label}` was provided: "{n_rep}" with type `{type(n_rep)}`. The type `{type(n_rep)}`is not recognized. Set `{label}` to an `int`.'
-        )
-
-
-def _validate_sample_annotation(
-    path: Path, sample: str, n_rep: int, label: str
-) -> None:
-    """
-    Validating sample annotations in file.
-    """
-
-    ion_path = path.joinpath("combined_ion.tsv")
-    pro_path = path.joinpath("combined_protein.tsv")
-
-    with open(ion_path, "r") as ion_file, open(pro_path, "r") as pro_file:
-        ion_header = next(ion_file).strip().split("\t")
-        pro_header = next(pro_file).strip().split("\t")
-
-    if n_rep > 1:
-        sample_ion_reps = [f"{sample}_{n+1} Intensity" for n in range(n_rep)]
-        sample_prot_reps = [f"{sample}_{n+1} MaxLFQ Intensity" for n in range(n_rep)]
-
-    elif n_rep == 1:
-        sample_ion_reps = [f"{sample} Intensity"]
-        sample_prot_reps = [f"{sample} MaxLFQ Intensity"]
-
-
-    for sample_rep in sample_ion_reps:
-        if sample_rep not in ion_header:
-            raise ValueError(
-                f'"{sample}" was not found in `{ion_path.resolve()}`. Set `{label}` to valid sample input.'
-            )
-
-    for sample_rep in sample_prot_reps:
-        if sample_rep not in pro_header:
-            raise ValueError(
-                f'"{sample}" was not found in `{ion_path.resolve()}`. Set `{label}` to valid sample input.'
-            )
-
-
 def __validate_method(method: str) -> str:
     """
     Validate the quantification method.
