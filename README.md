@@ -126,13 +126,6 @@ If you encounter any issues or have suggestions, please open an issue.
 We appreciate your feedback!
 
 ## Citation
-
-> FLiPPR: A Processor for Limited Proteolysis (LiP) Mass Spectrometry Data Sets Built on FragPipe
-Edgar Manriquez-Sandoval, Joy Brewer, Gabriela Lule, Samanta Lopez, and Stephen D. Fried
-Journal of Proteome Research
-DOI: 10.1021/acs.jproteome.3c00887
-> 
-
 If you found this work helpful in your research, please cite us!  
  
 **FLiPPR: A Processor for Limited Proteolysis (LiP) Mass Spectrometry Data Sets Built on FragPipe**  
