@@ -80,7 +80,6 @@ FLIPPR_PROTEIN_COLUMNS: list[str] = [
 
 
 FLIPPR_PROTEIN_SUMMARY_COLUMNS: list[str] = [
-    "Protein ID",
     "Protein",
     "Entry Name",
     "Gene",

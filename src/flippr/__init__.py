@@ -3,11 +3,14 @@ import polars as pl
 from pathlib import Path
 from functools import cached_property
 
+from typing import Union, Optional
+
 from . import flippr as _flippr
-from .parameters import rcParams
 from . import validate as _validate
+from .parameters import rcParams
 from .uniprot import fasta as _fasta
 
+type StrPath = str | Path
 
 class Study:
     """
@@ -33,13 +36,8 @@ class Study:
 
     """
 
-    def __init__(
-        self,
-        lip: str | Path,
-        trp: str | Path | None = None,
-        fasta: str | Path | None = None,
-        method: str = "lfq",
-    ):
+    def __init__(self, lip: str | Path, trp: str | Path | None = None, fasta: str | Path | None = None, method: str = "lfq") -> None:
+        
         _lip, _trp, _fasta_path, _method = _validate._validate_study(lip, trp, fasta, method)
 
         self.lip: Path = _lip

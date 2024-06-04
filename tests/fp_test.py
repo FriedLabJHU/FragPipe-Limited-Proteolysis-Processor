@@ -15,8 +15,6 @@ study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded", 3)
 
 study.run()
 
-study.results[1].ion.write_parquet("ions.parquet")
-
 for result in study.results.values():
     name = result.name
     
