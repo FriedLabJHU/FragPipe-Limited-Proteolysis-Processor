@@ -15,6 +15,8 @@ study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded", 3)
 
 study.run()
 
+study.results[1].ion.write_parquet("ions.parquet")
+
 for result in study.results.values():
     name = result.name
     
@@ -23,4 +25,3 @@ for result in study.results.values():
     result.peptide.write_excel(f"{name}_peptide.xlsx", freeze_panes = (1,0))
     result.modified_peptide.write_excel(f"{name}_modified_peptide.xlsx", freeze_panes = (1,0))
     result.cut_site.write_excel(f"{name}_cut_site.xlsx", freeze_panes = (1,0))
-    

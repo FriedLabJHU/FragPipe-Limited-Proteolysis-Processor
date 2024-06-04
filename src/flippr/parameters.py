@@ -1,3 +1,14 @@
+rcParams: dict = {
+    "ion.missing_intensity_thresh": 1,
+    "ion.aon_impute_loc": 1e4,
+    "ion.aon_impute_scale": 1e3,
+    "protein.fc_sig_thresh": 1.0,
+    "protein.pval_sig_thresh": 0.01,
+    "protein.adj_pval_sig_thresh": 0.05,
+    "protein.fc_high_sig_thresh": 6.0,
+    "protein.pval_high_sig_thresh": 0.016,
+}
+
 LFQ_FP_FILES: list[str] = [
     "combined_ion.tsv",
     "combined_protein.tsv",
@@ -79,7 +90,6 @@ FLIPPR_PROTEIN_SUMMARY_COLUMNS: list[str] = [
 ]
 
 FLIPPR_CUT_SITE_COLUMNS: list[str] = [
-    "Protein ID",
     "Cut Site",
     "Gene",
     "Entry Name",
@@ -90,8 +100,6 @@ FLIPPR_CUT_SITE_COLUMNS: list[str] = [
 ]
 
 FLIPPR_PEPTIDE_COLUMNS: list[str] = [
-    "Protein ID",
-    "Peptide Sequence",
     "Prev AA",
     "Start AA",
     "End AA",
@@ -109,8 +117,6 @@ FLIPPR_PEPTIDE_COLUMNS: list[str] = [
 ]
 
 FLIPPR_MODIFIED_PEPTIDE_COLUMNS: list[str] = [
-    "Protein ID",
-    "Modified Sequence",
     "Prev AA",
     "Start AA",
     "End AA",

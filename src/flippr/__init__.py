@@ -4,12 +4,9 @@ from pathlib import Path
 from functools import cached_property
 
 from . import flippr as _flippr
+from .parameters import rcParams
 from . import validate as _validate
 from .uniprot import fasta as _fasta
-
-
-# TODO TOC
-# Metadata integrations
 
 
 class Study:
@@ -43,9 +40,7 @@ class Study:
         fasta: str | Path | None = None,
         method: str = "lfq",
     ):
-        _lip, _trp, _fasta_path, _method = _validate._validate_study(
-            lip, trp, fasta, method
-        )
+        _lip, _trp, _fasta_path, _method = _validate._validate_study(lip, trp, fasta, method)
 
         self.lip: Path = _lip
         self.trp: Path | None = _trp
@@ -168,18 +163,12 @@ class Study:
             }
         )
 
-    def run(self, max_missing_values: int = 1, aon_mean: float = 1e4, aon_std: float = 1e3) -> dict[str, _flippr.Result]:
+    def run(self) -> dict[str, _flippr.Result]:
         """
         Run the processes added to the study.
-
-        Args:
-            max_missing_values (int, optional): Number of tolerated missing replicate ion intensities.
-            aon_mean (float, optional): Gaussian imputation mean for All-or-Nothing ions.
-            aon_std (floar, optional): Gaussian imputation standard deviation for All-or-Nothing ions.
         """
         
-        _kwargs = {"max_missing_values": max_missing_values, "aon_mean": aon_mean, "aon_std": aon_std}
-        self.results = {pid: proc.run(**_kwargs) for pid, proc in self.processes.items()}
+        self.results = {pid: proc.run(rcParams) for pid, proc in self.processes.items()}
 
         return self.results
 

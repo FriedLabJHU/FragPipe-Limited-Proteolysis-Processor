@@ -1,53 +1,57 @@
-# FLiPPR v0.0.7
-
-## Overview
-
-Welcome to FLiPPR! Please note that this version is an early release, and the code base is incomplete. We are actively working on enhancing and expanding the features.
+![FLiPPR Logo](/assets/images/flippr_long_logo.png)
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Support](#support)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Contributing](#contributing)
 - [License](#license)
+- [Citation](#citation)
+
+## Overview
+
+FLiPPR (**F**ragPipe **Li**mited-**P**roteolysis **Pr**ocessor) is modular, fast, and easy-to-use data processing tool for LiP-MS & LFQ-based experiments analyzed in FragPipe.
+
+FLiPPR is:
+* **Super Fast**: FLiPPR utilizes [Polars](https://pola.rs/) in the back-end to ensure all CPU cores contribute to your data processing.
+* **Convinent to Use**: [FragPipe](https://fragpipe.nesvilab.org/) produces standarized outputs, FLiPPR takes full advantage of this feat and integrates seemlessly with any FragPipe LFQ-MBR anaylsis.
+* **Flexible and Expandable**: Experiments introduce unique and novel variables, FLiPPR ensures capatibility with all experimental setups and gives you full control of the data processing pipeline.
+
+## Support
+FLiPPR has been tested with Python 3.10 – 3.12
+To learn more about how FLiPPR can help you analyze your LiP-MS or LFQ data, head over to the [FLiPPR docs](https://flippr.readthedocs.io)
 
 ## Installation
 
 To get started with FLiPPR, follow these steps:
 
-1. Clone the repository to your local machine:
-
-    ```
+```bash
+    # 1. Clone the repository:
     git clone https://https://github.com/FriedLabJHU/FragPipe-Limited-Proteolysis-Processor.git
-    ```
-
-2. Navigate to the project directory:
-
-    ```
+    
+    # 2. Navigate to the project directory:
     cd FragPipe-Limited-Proteolysis-Processor
-    ```
-
-3. Install FLiPPR:
-
-    ```
-    pip install .
-    ```
+    
+    # 3. Install FLiPPR:
+    python -m pip install .
+```
 
 ## Usage
 
-1. Start a Study
+1. Start a `Study`
 
 ```python
+import flippr as fp
 from flippr import Study
 
-# Pass the FragPipe output directory path from your LiP-MS study
+# Pass the FragPipe output directory path from your LiP-MS experiment
 study = Study(lip = "path/to/lip")
 
-# Include protein normalization factors from a Trypsin-only study
+# Include protein normalization factors from a Trypsin-only experiment
 study = Study(lip = "path/to/lip", trp = "path/to/trp")
 
-# Including a FASTA file will add metadata for pI and MW and remove contaminants
+# Including the protein FASTA file will add metadata and remove contaminants
 study = Study(lip = "path/to/lip", trp = "path/to/trp", fasta = "UP000000625_83333.fasta")
 ```
 
@@ -55,68 +59,77 @@ study = Study(lip = "path/to/lip", trp = "path/to/trp", fasta = "UP000000625_833
 
 ```python
 print(study.samples)
-# > {
-#    'LiP': 
-#       {'Refolded_005_min', 'Native', 'Refolded_120_min', 'Refolded_001_min'},
-#    'TrP': 
-#       {'Refolded', 'Native'}
-#   }
+# >>> { 'LiP': {'Native', 'Refolded_001_min', 'Refolded_005_min', 'Refolded_120_min'}, 'TrP': {'Refolded', 'Native'}}
 ```
 
-3. Add a Process
+3. Add an experimental process
 
 ```python
 # Process without normalization
-study.add_process(1  , "Native", "Refolded_001_min")
+study.add_process(1, "Native", "Refolded_001_min", 3)
 
 # Process with normalizations (only when `trp` is included in the study)
-study.add_process(5  , "Native", "Refolded_005_min", 3, "Native", "Refolded", 3)
-study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded", 3)
+study.add_process(5, "Native", "Refolded_005_min", 3, "Native", "Refolded", 3)
 
-# Process with different normalizations (only when `trp` is included in the study & contains all normalization conditions)
-study.add_process(5  , "Native", "Refolded_005_min", 3, "Native", "Refolded_005_min", 3)
-study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded_120_min", 3)
+# Multiple processes within one study
+study.add_process(1, "Native", "Refolded_001_min", 3, "Native", "Refolded", 3)
+study.add_process(5, "Native", "Refolded_005_min", 3, "Native", "Refolded", 3)
+study.add_process(120, "Native", "Refolded_120_min", 3, "Native", "Refolded", 3)
 ```
 
 4. Run your study
 
 ```python
-# Running a study populates the `Study().results` dictionary
+# Running a study returns results and populates the `Study().results` dictionary
 results = study.run()
+# >>> {1: <flippr.Results>, 5: <flippr.Results>, 120: <flippr.Results>}
 
-# Change the numer of missing values tolerated by the study (only recommended for studies with +4 replicates in all conditions)
-results = study.run(max_missing_values = 2)
-
-# Change the All-or-Nothing Gaussian imputation parameters
-# Defaults: aon_mean = 1e4, aon_std = 1e3
-results = study.run(aon_mean = 1e6, aon_std = 1e2)
-
+# Change analysis parameters within `fp.rcParams` before running for more control
+fp.rcParams["protein.fc_sig_thresh"] = 2.0
+results = study.run()
 ```
 
-5. View your results
+5. View or save your results as Polars DataFrames
 
 ```python
-# Viewing polars dataframes
-# 1 min time point ions
-results[1].ion
+# 1 min time point results
+results_1_min = results[1]
 
-# 5 min time point cut-sites
-results[5].cut_site
+# View all ions included in the 1 min experimental process
+results_1_min.ion
 
-# 120 min time point summary with metadata
-results[120].protein_summary
+# View higher-order results
+results_1_min.modified_peptide
+results_1_min.peptide
+results_1_min.cut_site
+
+# View protein-level summary of all data
+results_1_min.protein_summary
 ```
 
-## Contributing
+| Protein ID | Protein                   | Entry Name  | Gene   | … | No. of Valid Cut Sites | No. of Significant Cut Sites | No. of Significant Cut Sites |
+|------------|---------------------------|-------------|--------|---|------------------------|------------------------------|------------------------------|
+| P00350     | sp|P00350|6PGD_ECOLI      | 6PGD_ECOLI  | gnd    | … | 111                    | 40                           | 50                           |
+| P00363     | sp|P00363|FRDA_ECOLI      | FRDA_ECOLI  | frdA   | … | 15                     | 2                            | 2                            |
+| Q57261     | sp|Q57261|TRUD_ECOLI      | TRUD_ECOLI  | truD   | … | 24                     | 7                            | 8                            |
+| Q59385     | sp|Q59385|COPA_ECOLI      | COPA_ECOLI  | copA   | … |13                      | 2                            | 1                            |
+| Q7DFV3     | sp|Q7DFV3|YMGG_ECOLI      | YMGG_ECOLI  | ymgG   | … | 4                      | 2                            | 4                            |
+| Q93K97     | sp|Q93K97|ADPP_ECOLI      | ADPP_ECOLI  | nudF   | … | 9                      | 4                            | 5                            |
+| …          | …                         | …           | …      | … | …                      | …                            | …                            |
 
-:safety_vest: :hammer_and_wrench: Under construction :hammer_and_wrench: :safety_vest:	
 
 ## License
 
-This project is licensed under the MIT License. Feel free to use, modify, and distribute the code according to the terms specified in the license.
+This project is licensed under the CC BY-NC-ND 4.0 License. Feel free to use the code according to the terms specified in the license.
 
-Thank you for your interest in FLiPPR! If you encounter any issues or have suggestions, please open an issue. We appreciate your feedback!
+Thank you for your interest in FLiPPR!
+If you encounter any issues or have suggestions, please open an issue.
+We appreciate your feedback!
 
 ## Citation
-
-:safety_vest: :hammer_and_wrench: Under construction :hammer_and_wrench: :safety_vest:	
+If you found this work helpful in your research, please cite us!  
+ 
+**FLiPPR: A Processor for Limited Proteolysis (LiP) Mass Spectrometry Data Sets Built on FragPipe**  
+Edgar Manriquez-Sandoval, Joy Brewer, Gabriela Lule, Samanta Lopez, and Stephen D. Fried  
+*Journal of Proteome Research*  
+DOI: ***10.1021/acs.jproteome.3c00887***
