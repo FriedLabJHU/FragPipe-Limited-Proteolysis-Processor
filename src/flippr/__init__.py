@@ -8,7 +8,6 @@ from . import validate as _validate
 from .parameters import rcParams
 from .uniprot import fasta as _fasta
 
-
 class Study:
     """
     A FLiPPR Study is used to coordinate Limited Proteolysis (LiP) data processing for a single experiment analyzed with FragPipe.
