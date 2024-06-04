@@ -107,16 +107,14 @@ results_1_min.cut_site
 results_1_min.protein_summary
 ```
 
-| Protein ID | Protein                   | Entry Name  | Gene   | … | No. of Valid Cut Sites | No. of Significant Cut Sites | No. of Significant Cut Sites |
-|------------|---------------------------|-------------|--------|---|------------------------|------------------------------|------------------------------|
-| P00350     | sp|P00350|6PGD_ECOLI      | 6PGD_ECOLI  | gnd    | … | 111                    | 40                           | 50                           |
-| P00363     | sp|P00363|FRDA_ECOLI      | FRDA_ECOLI  | frdA   | … | 15                     | 2                            | 2                            |
-| Q57261     | sp|Q57261|TRUD_ECOLI      | TRUD_ECOLI  | truD   | … | 24                     | 7                            | 8                            |
-| Q59385     | sp|Q59385|COPA_ECOLI      | COPA_ECOLI  | copA   | … |13                      | 2                            | 1                            |
-| Q7DFV3     | sp|Q7DFV3|YMGG_ECOLI      | YMGG_ECOLI  | ymgG   | … | 4                      | 2                            | 4                            |
-| Q93K97     | sp|Q93K97|ADPP_ECOLI      | ADPP_ECOLI  | nudF   | … | 9                      | 4                            | 5                            |
-| …          | …                         | …           | …      | … | …                      | …                            | …                            |
-
+| Protein ID | Protein                   | Entry Name  | Gene   | ... | No. of Valid Cut Sites | No. of Significant Cut Sites | No. of Significant Cut Sites |
+|------------|---------------------------|-------------|--------|-----|------------------------|------------------------------|------------------------------|
+| P00350     | sp|P00350|6PGD_ECOLI      | 6PGD_ECOLI  | gnd    | ... | 111                    | 40                           | 50                           |
+| P00363     | sp|P00363|FRDA_ECOLI      | FRDA_ECOLI  | frdA   | ... | 15                     | 2                            | 2                            |
+| Q57261     | sp|Q57261|TRUD_ECOLI      | TRUD_ECOLI  | truD   | ... | 24                     | 7                            | 8                            |
+| Q59385     | sp|Q59385|COPA_ECOLI      | COPA_ECOLI  | copA   | ... |13                      | 2                            | 1                            |
+| Q7DFV3     | sp|Q7DFV3|YMGG_ECOLI      | YMGG_ECOLI  | ymgG   | ... | 4                      | 2                            | 4                            |
+| Q93K97     | sp|Q93K97|ADPP_ECOLI      | ADPP_ECOLI  | nudF   | ... | 9                      | 4                            | 5                            |
 
 ## License
 
