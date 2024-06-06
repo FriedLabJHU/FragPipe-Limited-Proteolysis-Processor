@@ -1,12 +1,13 @@
+from functools import cached_property
+from pathlib import Path
+
 import polars as pl
 
-from pathlib import Path
-from functools import cached_property
-
-from . import flippr as _flippr
+from . import spr as _spr
 from . import validate as _validate
 from .parameters import rcParams
 from .uniprot import fasta as _fasta
+
 
 class Study:
     """
@@ -33,7 +34,7 @@ class Study:
     """
 
     def __init__(self, lip: str | Path, trp: str | Path | None = None, fasta: str | Path | None = None, method: str = "lfq") -> None:
-        
+
         _lip, _trp, _fasta_path, _method = _validate._validate_study(lip, trp, fasta, method)
 
         self.lip: Path = _lip
@@ -131,7 +132,7 @@ class Study:
 
         self.processes.update(
             {
-                pid: _flippr.Process(
+                pid: _spr.Process(
                     self.fasta,
                     self.lip,
                     self.trp,
@@ -146,12 +147,12 @@ class Study:
             }
         )
 
-    def run(self) -> dict[object: _flippr.Result]:
+    def run(self) -> dict[object: _spr.Result]:
         """
         Run the processes added to the study.
         Study parameters can be changed by editing the `flippr.rcParams` dictionary.
         """
-        
+
         self.results = {pid: proc.run(rcParams) for pid, proc in self.processes.items()}
 
         return self.results

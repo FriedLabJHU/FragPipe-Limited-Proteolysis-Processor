@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from .parameters import LFQ_FP_FILES
+from .parameters import _LFQ_FP_FILES
+
 # from flippr.parameters import SILAC_FP_FILES
 
 
@@ -69,10 +70,10 @@ def __validate_fragpipe_files(path: Path, method: str) -> None:
     """
 
     if method == "lfq":
-        if not all([path.joinpath(f).exists() for f in LFQ_FP_FILES]):
+        if not all([path.joinpath(f).exists() for f in _LFQ_FP_FILES]):
             raise FileNotFoundError(
                 f'Files not found in "{path}". The FragPipe output directory path should minimally contain: '
-                + "\t\n".join([f"`{f}`" for f in LFQ_FP_FILES])
+                + "\t\n".join([f"`{f}`" for f in _LFQ_FP_FILES])
             )
 
     if method == "silac":

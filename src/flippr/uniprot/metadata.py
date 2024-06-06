@@ -1,8 +1,8 @@
-import polars as pl
 import asyncio
-import nest_asyncio
+
 import httpx
-import json
+import nest_asyncio
+import polars as pl
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
 
 nest_asyncio.apply()
@@ -33,12 +33,12 @@ def uniprot_json(accessions: pl.Series):
 
 def bio_metadata(fasta: pl.DataFrame) -> pl.DataFrame:
     return fasta.with_columns(
-        pl.col("Sequence").map_elements(lambda x: ProteinAnalysis(x))
+        pl.col("Sequence").map_elements(lambda x: ProteinAnalysis(x), return_dtype=pl.Object)
         .alias("Analysis"),
     ).with_columns(
-        pl.col("Analysis").map_elements(lambda x: x.isoelectric_point())
+        pl.col("Analysis").map_elements(lambda x: x.isoelectric_point(), return_dtype=pl.Float64)
         .alias("pI"),
-        pl.col("Analysis").map_elements(lambda x: x.molecular_weight())
+        pl.col("Analysis").map_elements(lambda x: x.molecular_weight(), return_dtype=pl.Float64)
         .alias("MW (Da)"),
         pl.col("Sequence").str.len_chars()
         .alias("Len (aa)"),

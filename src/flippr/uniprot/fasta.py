@@ -1,9 +1,10 @@
 import re
-import polars as pl
 from pathlib import Path
+
+import polars as pl
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
-from flippr.parameters import STANDARD_AA_CONVERSION
+from flippr.parameters import _STANDARD_AA_CONVERSION
 
 # UniProtKB accession number validation regex (https://www.uniprot.org/help/accession_numbers)
 ACCESSION_RE = re.compile(
@@ -28,14 +29,14 @@ def _read_fasta(fasta_path: str | Path) -> pl.DataFrame:
     """
 
     fasta_dict = dict()
-    with open(fasta_path, "r") as open_fasta:
+    with open(fasta_path) as open_fasta:
         fasta_gen = SimpleFastaParser(open_fasta)
 
         for faa in fasta_gen:
             acc = __extract_accession(faa[0])
             seq = faa[1].upper()
 
-            for old_aa, new_aa in STANDARD_AA_CONVERSION.items():
+            for old_aa, new_aa in _STANDARD_AA_CONVERSION.items():
                 seq = seq.replace(old_aa, new_aa)
 
             fasta_dict.update({acc: seq})
@@ -45,7 +46,7 @@ def _read_fasta(fasta_path: str | Path) -> pl.DataFrame:
     )
 
     fasta_df = fasta_df.with_columns(
-        pl.col("Protein ID").map_elements(__validate_accession).alias("Valid ID")
+        pl.col("Protein ID").map_elements(__validate_accession, return_dtype=pl.Boolean).alias("Valid ID")
     )
 
     return fasta_df

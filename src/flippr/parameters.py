@@ -1,21 +1,25 @@
 rcParams: dict = {
     "ion.missing_intensity_thresh": 1,
+    "ion.impute_type": "gaussian",
     "ion.aon_impute_loc": 1e4,
     "ion.aon_impute_scale": 1e3,
+    "trp_protein.intensity_value": "MaxLFQ Intensity",
+    "trp_protein.fc_sig_tresh": 1.0,
+    "trp_protein.pval_sig_tresh": 0.01,
     "protein.fc_sig_thresh": 1.0,
     "protein.pval_sig_thresh": 0.01,
     "protein.adj_pval_sig_thresh": 0.05,
-    "protein.fc_high_sig_thresh": 6.0,
-    "protein.pval_high_sig_thresh": 0.016,
+    "protein.high_fc_sig_thresh": 6.0,
+    "protein.high_pval_sig_thresh": 0.016,
 }
 
-LFQ_FP_FILES: list[str] = [
+_LFQ_FP_FILES: list[str] = [
     "combined_ion.tsv",
     "combined_protein.tsv",
     "experiment_annotation.tsv",
 ]
 
-LFQ_FP_CONSTANT_ION_COLUMNS: list[str] = [
+_LFQ_FP_CONSTANT_ION_COLUMNS: list[str] = [
     "Peptide Sequence",
     "Modified Sequence",
     "Prev AA",
@@ -36,14 +40,14 @@ LFQ_FP_CONSTANT_ION_COLUMNS: list[str] = [
     "Mapped Proteins",
 ]
 
-LFQ_FP_VARIABLE_ION_COLUMNS: list[str] = [
+_LFQ_FP_VARIABLE_ION_COLUMNS: list[str] = [
     "Spectral Count",
     "Apex Retention Time",
     "Intensity",
     "Match Type",
 ]
 
-LFQ_FP_CONSTANT_PROTEIN_COLUMNS: list[str] = [
+_LFQ_FP_CONSTANT_PROTEIN_COLUMNS: list[str] = [
     "Protein",
     "Protein ID",
     "Entry Name",
@@ -60,13 +64,13 @@ LFQ_FP_CONSTANT_PROTEIN_COLUMNS: list[str] = [
     "Combined Total Spectral Count",
 ]
 
-LFQ_FP_VARIABLE_PROTEIN_COLUMNS: list[str] = [
+_LFQ_FP_VARIABLE_PROTEIN_COLUMNS: list[str] = [
     "Spectral Count",
     "Intensity",
     "MaxLFQ Intensity",
 ]
 
-FLIPPR_PROTEIN_COLUMNS: list[str] = [
+_FLIPPR_PROTEIN_COLUMNS: list[str] = [
     "Protein",
     "Protein ID",
     "Entry Name",
@@ -79,7 +83,7 @@ FLIPPR_PROTEIN_COLUMNS: list[str] = [
 ]
 
 
-FLIPPR_PROTEIN_SUMMARY_COLUMNS: list[str] = [
+_FLIPPR_PROTEIN_SUMMARY_COLUMNS: list[str] = [
     "Protein",
     "Entry Name",
     "Gene",
@@ -88,7 +92,7 @@ FLIPPR_PROTEIN_SUMMARY_COLUMNS: list[str] = [
     "Mapped Proteins",
 ]
 
-FLIPPR_CUT_SITE_COLUMNS: list[str] = [
+_FLIPPR_CUT_SITE_COLUMNS: list[str] = [
     "Cut Site",
     "Gene",
     "Entry Name",
@@ -98,7 +102,7 @@ FLIPPR_CUT_SITE_COLUMNS: list[str] = [
     "Half Tryptic",
 ]
 
-FLIPPR_PEPTIDE_COLUMNS: list[str] = [
+_FLIPPR_PEPTIDE_COLUMNS: list[str] = [
     "Prev AA",
     "Start AA",
     "End AA",
@@ -115,7 +119,7 @@ FLIPPR_PEPTIDE_COLUMNS: list[str] = [
     "Cleavage Type",
 ]
 
-FLIPPR_MODIFIED_PEPTIDE_COLUMNS: list[str] = [
+_FLIPPR_MODIFIED_PEPTIDE_COLUMNS: list[str] = [
     "Prev AA",
     "Start AA",
     "End AA",
@@ -132,14 +136,14 @@ FLIPPR_MODIFIED_PEPTIDE_COLUMNS: list[str] = [
     "Cleavage Type",
 ]
 
-FLIPPR_COMBINE_KEY: dict[str, list] = {
-    "CUT SITE": FLIPPR_CUT_SITE_COLUMNS,
-    "PEPTIDE": FLIPPR_PEPTIDE_COLUMNS,
-    "MODIFIED PEPTIDE": FLIPPR_MODIFIED_PEPTIDE_COLUMNS,
+_FLIPPR_COMBINE_KEY: dict[str, list] = {
+    "CUT SITE": _FLIPPR_CUT_SITE_COLUMNS,
+    "PEPTIDE": _FLIPPR_PEPTIDE_COLUMNS,
+    "MODIFIED PEPTIDE": _FLIPPR_MODIFIED_PEPTIDE_COLUMNS,
 }
 
 # Thank you Holehouse lab!
-STANDARD_AA_CONVERSION = {
+_STANDARD_AA_CONVERSION = {
     "B": "N",
     "U": "C",
     "X": "G",
@@ -148,7 +152,3 @@ STANDARD_AA_CONVERSION = {
     "-": "",
     " ": "",
 }
-
-# TODO: Add SILAC compatibility
-# SILAC_FP_FILES = None
-# SILAC_FP_COLUMNS = None

@@ -5,10 +5,9 @@ build-backend = "hatchling.build"
 [project]
 name = "flippr"
 dynamic = ["version"]
-description = "FragPipe Limited Proteolysis Processor (FLiPPR) facilitates the analysis of data from limited proteolysis mass spectrometry (LiP-MS) experiments following quantification in FragPipe"
+description = "FragPipe Limited-Proteolysis Processor (FLiPPR) is modular, fast, and easy-to-use data processing tool for LiP-MS & LFQ-based experiments analyzed in FragPipe"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
 keywords = [
   "bottom-up proteomics",
   "computational mass spectrometry",
@@ -16,7 +15,13 @@ keywords = [
   "fragpipe analysis",
   "limited proteolysis",
   "lip-ms",
-  "proteomics"
+  "lfq",
+  "label-free",
+  "label-free quantification",
+  "differential analysis",
+  "proteomics",
+  "flippr",
+  "fragpipe"
 ]
 authors = [
   { name = "Edgar Manriquez-Sandoval", email = "emanriq1@jhu.edu"},
@@ -24,7 +29,7 @@ authors = [
 maintainers = [
   {name = "FriedLab@JHU", email = "friedlab.jhu@gmail.com"},
   {name = "Stephen D. Fried", email = "sdfried@jhu.edu"},
-  { name = "Edgar Manriquez-Sandoval", email = "emanriq1@jhu.edu"},
+  {name = "Edgar Manriquez-Sandoval", email = "emanriq1@jhu.edu"},
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
