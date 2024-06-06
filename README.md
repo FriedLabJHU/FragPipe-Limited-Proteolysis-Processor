@@ -24,10 +24,9 @@ To learn more about how FLiPPR can help you analyze your LiP-MS or LFQ data, hea
 
 ## Installation
 
-To get started with FLiPPR, follow these steps:
+Install FLiPPR with `pip`:
 
 ```bash
-    # 1. Install with pip 
     python -m pip install flippr
 ```
 
