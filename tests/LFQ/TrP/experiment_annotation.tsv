@@ -1,7 +1,0 @@
-file	sample	sample_name	condition	replicate
-Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_NC1.raw	Native_1	Native_1	Native	1
-Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_NC2.raw	Native_2	Native_2	Native	2
-Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_NC3.raw	Native_3	Native_3	Native	3
-Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RC1.raw	Refolded_1	Refolded_1	Refolded	1
-Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RC2.raw	Refolded_2	Refolded_2	Refolded	2
-Z:\friedlab\EM_DATA\MS_DATA\PXD025926\20201219_RC3.raw	Refolded_3	Refolded_3	Refolded	3

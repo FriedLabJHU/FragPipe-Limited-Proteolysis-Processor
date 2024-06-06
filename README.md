@@ -27,14 +27,8 @@ To learn more about how FLiPPR can help you analyze your LiP-MS or LFQ data, hea
 To get started with FLiPPR, follow these steps:
 
 ```bash
-    # 1. Clone the repository:
-    git clone https://https://github.com/FriedLabJHU/FragPipe-Limited-Proteolysis-Processor.git
-    
-    # 2. Navigate to the project directory:
-    cd FragPipe-Limited-Proteolysis-Processor
-    
-    # 3. Install FLiPPR:
-    python -m pip install .
+    # 1. Install with pip 
+    python -m pip install flippr
 ```
 
 ## Usage
