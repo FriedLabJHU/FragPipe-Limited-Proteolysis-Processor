@@ -144,8 +144,8 @@ def _add_ratio(df: pl.DataFrame,
 
     df = \
     df.with_columns(# Calculate FC and CV
-        (pl.col(f"{test_name} Mean").mean() / pl.col(f"{ctrl_name} Mean")).alias("FC"),
-        (pl.col(f"{test_name} Std").mean() / pl.col(f"{test_name} Mean")).alias("CV")
+        (pl.col(f"{test_name} Mean") / pl.col(f"{ctrl_name} Mean")).alias("FC"),
+        (pl.col(f"{test_name} Std") / pl.col(f"{test_name} Mean")).alias("CV")
     ).drop([f"{ctrl_name} Mean", f"{ctrl_name} Std", f"{test_name} Mean", f"{test_name} Std"])
 
     return df

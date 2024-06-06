@@ -6,6 +6,7 @@ flippr/__pycache__
 
 /**/.*
 /**/.*/
+/**/dist/
 /**/data/
 /**/*.log
 /**/*.txt
