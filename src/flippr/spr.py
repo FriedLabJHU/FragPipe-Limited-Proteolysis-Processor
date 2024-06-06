@@ -216,13 +216,11 @@ class Result:
             pl.col(_FLIPPR_PROTEIN_SUMMARY_COLUMNS).first()
         )
 
-        __mod = _combine.summary_by(
-            self.modified_peptide, by="Modified Peptides", fc=self._fc
-        )
+        __mod = _combine.summary_by(self.modified_peptide, by="Modified Peptides", fc=self._fc, rcParams=self.rcParams)
 
-        __pep = _combine.summary_by(self.peptide, by="Peptides", fc=self._fc)
+        __pep = _combine.summary_by(self.peptide, by="Peptides", fc=self._fc, rcParams=self.rcParams)
 
-        __cut = _combine.summary_by(self.cut_site, by="Cut Sites", fc=self._fc)
+        __cut = _combine.summary_by(self.cut_site, by="Cut Sites", fc=self._fc, rcParams=self.rcParams)
 
         self._proteins = (
             self._proteins

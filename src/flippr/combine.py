@@ -63,10 +63,17 @@ def combine_by(df: pl.DataFrame, by: str, fc: str) -> pl.DataFrame:
     return combined
 
 
-def summary_by(df: pl.DataFrame, by: str, fc: str) -> pl.DataFrame:
+def summary_by(df: pl.DataFrame, by: str, fc: str, rcParams: dict) -> pl.DataFrame:
+
+    prot_fc_sig = rcParams.get("protein.fc_sig_thresh", 1.0)
+    prot_pv_sig = rcParams.get("protein.pval_sig_thresh", 0.01)
+    prot_apv_sig = rcParams.get("protein.adj_pval_sig_thresh", 0.05)
+    prot_hfc_sig = rcParams.get("protein.high_fc_sig_thresh", 6.0)
+    prot_hpv_sig = rcParams.get("protein.high_pval_sig_thresh", 0.016)
+
     val = (
         df.group_by(by="Protein ID", maintain_order=True)
-        .agg(pl.col("CV").filter(pl.col("-Log10 P-value") > 0).len())
+        .agg(pl.col("CV").filter(pl.col("-Log10 P-value").gt(0)).len())
         .rename({"CV": f"No. of Valid {by}"})
     )
 
@@ -76,12 +83,12 @@ def summary_by(df: pl.DataFrame, by: str, fc: str) -> pl.DataFrame:
             pl.col("CV")
             .filter(
                 (
-                    (pl.col(f"Log2 {fc}").abs() >= 1)
-                    & (pl.col("-Log10 P-value") >= -np.log10(0.01))
+                    (pl.col(f"Log2 {fc}").abs().ge(prot_fc_sig))
+                    & (pl.col("P-value").le(prot_pv_sig))
                 )
                 | (
-                    (pl.col(f"Log2 {fc}").abs() >= 6)
-                    & (pl.col("-Log10 P-value") >= 1.8)
+                    (pl.col(f"Log2 {fc}").abs().ge(prot_hfc_sig))
+                    & (pl.col("P-value").le(prot_hpv_sig))
                 )
             )
             .len()
@@ -95,8 +102,8 @@ def summary_by(df: pl.DataFrame, by: str, fc: str) -> pl.DataFrame:
             pl.col("CV")
             .filter(
 
-                    (pl.col(f"Log2 {fc}").abs() >= 1)
-                    & (pl.col("-Log10 Adj. P-value") >= -np.log10(0.05))
+                    (pl.col(f"Log2 {fc}").abs().ge(prot_fc_sig))
+                    & (pl.col("Adj. P-value").le(prot_apv_sig))
 
             )
             .len()
