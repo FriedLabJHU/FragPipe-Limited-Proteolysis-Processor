@@ -122,6 +122,7 @@ class Result:
 
         self._ion = self._read_fragpipe_tsv(self._lip_path, self._lip_process_cols, "combined_ion.tsv")
         self._ion = self.run(self._ion, args)
+        self._ion = self.clean_up(self._ion, args)
 
         if self._is_trp_norm:
             trp_prot_int_val = self.rcParams.get("trp_protein.intensity_value", "MaxLFQ Intensity")
@@ -150,20 +151,19 @@ class Result:
                 + self._trp_test_cols
             )
 
-            args = {"ctrl_name":self._trp_ctrl_name, "test_name":self._trp_test_name,
+            trp_args = {"ctrl_name":self._trp_ctrl_name, "test_name":self._trp_test_name,
                     "ctrl_ints":self._trp_ctrl_ints, "test_ints": self._trp_test_ints,
                     "n_rep": self._trp_n_rep,
                     "rcParams": self.rcParams}
 
             self._trp_norm = self._read_fragpipe_tsv(self._trp_path, self._trp_process_cols, "combined_protein.tsv")
-            self._trp_norm = self.run(self._trp_norm, args)
+            self._trp_norm = self.run(self._trp_norm, trp_args)
             self._ion = _functions._normalize_ratios(self._ion, self._trp_norm, rcParams)
             self._fc = "Normalized FC" # Generated after running `._normalize_ratios()`
 
-        self._ion = self.clean_up(self._ion, args)
 
     def run(self, df: pl.DataFrame, args: dict) -> pl.DataFrame:
-
+        # Can be performed on ion, mod_pep, pep, or protein
         df = _functions._cull_intensities(df, **args)
         df = _functions._add_alt_hypothesis(df, **args)
         df = _functions._impute_aon_intensities(df, **args)
@@ -177,7 +177,7 @@ class Result:
         return df
 
     def clean_up(self, df: pl.DataFrame, args: dict) -> pl.DataFrame:
-
+        # Only meant to be performed on the lip ions
         df = _functions._add_start_end_aa(df, **args)
         df = _functions._add_half_trpytic(df, **args)
         df = _functions._add_cut_sites(df, **args)
@@ -188,30 +188,34 @@ class Result:
         df: pl.DataFrame = pl.read_csv(path.joinpath(filename), separator="\t").select(pl.col(cols))
         return df
 
-    def _add_metadata(self, df: pl.DataFrame):
+    def _add_metadata(self, df: pl.DataFrame) -> pl.DataFrame:
         if self._fasta is not None:
             md = _metadata.bio_metadata(self._fasta)
             return df.join(md, on="Protein ID")
 
 
     @property
-    def ion(self):
+    def ion(self) -> pl.DataFrame:
         return self._ion
+    
+    @property
+    def trp_protein(self) -> pl.DataFrame:
+        return self._trp_norm
 
     @cached_property
-    def modified_peptide(self):
+    def modified_peptide(self) -> pl.DataFrame:
         return _combine.combine_by(self.ion, by="MODIFIED PEPTIDE", fc=self._fc)
 
     @cached_property
-    def peptide(self):
+    def peptide(self) -> pl.DataFrame:
         return _combine.combine_by(self.ion, by="PEPTIDE", fc=self._fc)
 
     @cached_property
-    def cut_site(self):
+    def cut_site(self) -> pl.DataFrame:
         return _combine.combine_by(self.ion, by="CUT SITE", fc=self._fc)
 
     @cached_property
-    def protein_summary(self):
+    def protein_summary(self) -> pl.DataFrame:
         self._proteins = self.ion.group_by(by="Protein ID", maintain_order=True).agg(
             pl.col(_FLIPPR_PROTEIN_SUMMARY_COLUMNS).first()
         )

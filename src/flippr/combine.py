@@ -47,11 +47,9 @@ def combine_by(df: pl.DataFrame, by: str, fc: str) -> pl.DataFrame:
             pl.col("Adj. P-value")
             .map_elements(lambda x: sp.stats.combine_pvalues(x)[1], return_dtype=pl.Float64)
             .alias("Adj. P-value"),
-            pl.col("CV")
-            .map_elements(lambda x: np.nanmax(x), return_dtype=pl.Float64)
+            pl.col("CV").list.max()
             .alias("CV"),
-            pl.col(fc)
-            .map_elements(lambda x: np.nanmedian(x), return_dtype=pl.Float64)
+            pl.col(fc).list.median()
             .alias(fc)
         )
     )
