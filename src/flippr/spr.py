@@ -48,15 +48,20 @@ class Process:
         self._lip_ctrl: list[str] = [f"{lip_ctrl}_{n+1}" for n in range(n_rep)]
         self._lip_test: list[str] = [f"{lip_test}_{n+1}" for n in range(n_rep)]
         self._n_rep: int = n_rep
+        self._trp_path: Path | None = None
+        self._trp_ctrl_name: str | None = None
+        self._trp_test_name: str | None = None
+        self._trp_ctrl: list[str] | None = None
+        self._trp_test: list[str] | None = None
+        self._trp_n_rep: int | None = None
 
         if self._is_trp_norm:
-            # TODO: Allow TrP normalization to occur with "MaxLFQ Intensity" or "Intensity" from `combined_protein.tsv`
-            self._trp_path: Path = trp_path
-            self._trp_ctrl_name: str = trp_ctrl
-            self._trp_test_name: str = trp_test
-            self._trp_ctrl: list[str] = [f"{trp_ctrl}_{n+1}" for n in range(trp_n_rep)]
-            self._trp_test: list[str] = [f"{trp_test}_{n+1}" for n in range(trp_n_rep)]
-            self._trp_n_rep: int = trp_n_rep
+            self._trp_path = trp_path
+            self._trp_ctrl_name = trp_ctrl
+            self._trp_test_name = trp_test
+            self._trp_ctrl = [f"{trp_ctrl}_{n+1}" for n in range(trp_n_rep)]
+            self._trp_test = [f"{trp_test}_{n+1}" for n in range(trp_n_rep)]
+            self._trp_n_rep = trp_n_rep
 
     @property
     def name(self) -> str:
