@@ -12,7 +12,7 @@ build:
     python: "3.10"
   jobs: 
     pre_install:
-      - pip install cython 
+      - pip install flippr
       - pip install sphinx-rtd-theme
 
 # Build documentation in the docs/ directory with Sphinx
