@@ -1,0 +1,17 @@
+#
+####### requirements.txt #######
+#
+biopython
+h2
+httpx
+matplotlib
+nest_asyncio
+numpy
+pandas
+polars
+pyarrow
+requests
+scipy
+seaborn
+xlsx2csv
+xlsxwriter
