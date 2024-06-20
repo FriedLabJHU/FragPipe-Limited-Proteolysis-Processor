@@ -20,9 +20,9 @@ def _cull_intensities(df: pl.DataFrame,
         | (pl.col(f"{ctrl_name} ZC").eq(0)           & pl.col(f"{test_name} ZC").le(max_missing))
         | (pl.col(f"{ctrl_name} ZC").eq(n_rep)       & pl.col(f"{test_name} ZC").eq(0))
         | (pl.col(f"{ctrl_name} ZC").eq(0)           & pl.col(f"{test_name} ZC").eq(n_rep))
-    ).with_columns(# Replace zero values remaining with NaN
-        pl.col(ctrl_ints).replace(0.0, float("nan")),
-        pl.col(test_ints).replace(0.0, float("nan"))
+    ).with_columns(# Replace zero values remaining with null
+        pl.col(ctrl_ints).replace(0.0, None),
+        pl.col(test_ints).replace(0.0, None)
     )
 
     return df
@@ -36,9 +36,9 @@ def _add_alt_hypothesis(df: pl.DataFrame,
     df = \
     df.with_columns(# Add alternative hypothesis
         pl.when(pl.col(f"{ctrl_name} ZC").eq(n_rep) & pl.col(f"{test_name} ZC").eq(0))
-        .then(pl.lit("greater"))
-        .when(pl.col(f"{ctrl_name} ZC").eq(0) & pl.col(f"{test_name} ZC").eq(n_rep))
         .then(pl.lit("less"))
+        .when(pl.col(f"{ctrl_name} ZC").eq(0) & pl.col(f"{test_name} ZC").eq(n_rep))
+        .then(pl.lit("greater"))
         .otherwise(pl.lit("two-sided"))
         .alias("Alternative Hypothesis")
     )
@@ -55,7 +55,7 @@ def _impute_aon_intensities(df: pl.DataFrame,
 
     # Add imputation variables
     loc = rcParams.get("ion.aon_impute_loc", 1e4)
-    scale = rcParams.get("ion.aon_impute_scale", 1e4)
+    scale = rcParams.get("ion.aon_impute_scale", 1e3)
     imp_df = pl.from_numpy(np.random.normal(loc=loc, scale=scale, size=(df.height, n_rep)), schema=["IMP"])
     df = df.hstack(imp_df)
 
@@ -74,9 +74,9 @@ def _impute_aon_intensities(df: pl.DataFrame,
         pl.col(f"{ctrl_name} Intensity").list.get(i).alias(col) for i, col in enumerate(ctrl_ints)
     ).with_columns(# Seperate out imputation (if perfromed) vars for test conditions
         pl.col(f"{test_name} Intensity").list.get(i).alias(col) for i, col in enumerate(test_ints)
-    ).with_columns(# Drop NaNs for further computations, this column will be droped down-stream
-        pl.col(f"{ctrl_name} Intensity").list.eval(pl.element().drop_nans()).alias(f"{ctrl_name} Intensity"),
-        pl.col(f"{test_name} Intensity").list.eval(pl.element().drop_nans()).alias(f"{test_name} Intensity")
+    ).with_columns(# Drop nulls for further computations, this column will be droped down-stream
+        pl.col(f"{ctrl_name} Intensity").list.drop_nulls().alias(f"{ctrl_name} Intensity"),
+        pl.col(f"{test_name} Intensity").list.drop_nulls().alias(f"{test_name} Intensity")
     ).drop(["IMP", f"{ctrl_name} ZC", f"{test_name} ZC"])
 
     return df
@@ -98,20 +98,19 @@ def _add_ttest(df: pl.DataFrame,
         pl.struct(# Create struct with `.ttest_ind_from_stats()` var names
             mean1=pl.col(f"{ctrl_name} Mean"),
             std1=pl.col(f"{ctrl_name} Std"),
-            nobs1=n_rep,
-
+            nobs1=pl.col(f"{ctrl_name} Intensity").list.len(),
             mean2=pl.col(f"{test_name} Mean"),
             std2=pl.col(f"{test_name} Std"),
-            nobs2=n_rep,
+            nobs2=pl.col(f"{test_name} Intensity").list.len(),
             alternative=pl.col("Alternative Hypothesis")
-        ).map_elements(# Perform T-test, slow step
+        ).map_elements(# Perform T-test
             lambda x: sp.stats.ttest_ind_from_stats(**x, equal_var=False),
             return_dtype=pl.List(pl.Float64)
         ).alias("Stats")
     ).with_columns(# Seperate out T-test vars
         pl.col("Stats").list.first().alias("T-test"),
         pl.col("Stats").list.last().alias("P-value"),
-    ).drop(["Stats", f"{ctrl_name} Intensity", f"{test_name} Intensity"])
+    )
 
     return df
 
@@ -146,7 +145,13 @@ def _add_ratio(df: pl.DataFrame,
     df.with_columns(# Calculate FC and CV
         (pl.col(f"{test_name} Mean") / pl.col(f"{ctrl_name} Mean")).alias("FC"),
         (pl.col(f"{test_name} Std") / pl.col(f"{test_name} Mean")).alias("CV")
-    ).drop([f"{ctrl_name} Mean", f"{ctrl_name} Std", f"{test_name} Mean", f"{test_name} Std"])
+    ).drop(# Cleaning up for output in ions
+        [
+            f"{ctrl_name} Mean", f"{ctrl_name} Std",
+            f"{test_name} Mean", f"{test_name} Std",
+            "Stats", f"{ctrl_name} Intensity", f"{test_name} Intensity"
+        ]
+    )
 
     return df
 

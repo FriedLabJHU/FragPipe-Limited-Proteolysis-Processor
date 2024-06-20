@@ -1,4 +1,4 @@
-![FLiPPR Logo](/assets/images/flippr_long_logo.png)
+![FLiPPR Logo](docs/images/flippr_long_logo.png)
 
 ## Table of Contents
 

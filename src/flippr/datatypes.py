@@ -65,6 +65,9 @@ class Process:
 
     @property
     def name(self) -> str:
+        """
+            Returns the name of the process from the given LiP control and test conditions.
+        """
         return f"{self._lip_ctrl_name}_v_{self._lip_test_name}"
 
     def run(self, rcParams: dict):
@@ -157,9 +160,9 @@ class Result:
             )
 
             trp_args = {"ctrl_name":self._trp_ctrl_name, "test_name":self._trp_test_name,
-                    "ctrl_ints":self._trp_ctrl_ints, "test_ints": self._trp_test_ints,
-                    "n_rep": self._trp_n_rep,
-                    "rcParams": self.rcParams}
+                        "ctrl_ints":self._trp_ctrl_ints, "test_ints": self._trp_test_ints,
+                        "n_rep": self._trp_n_rep,
+                        "rcParams": self.rcParams}
 
             self._trp_norm = self._read_fragpipe_tsv(self._trp_path, self._trp_process_cols, "combined_protein.tsv")
             self._trp_norm = self.run(self._trp_norm, trp_args)
@@ -201,6 +204,9 @@ class Result:
 
     @property
     def ion(self) -> pl.DataFrame:
+        """
+            ion dataframe
+        """
         return self._ion
     
     @property

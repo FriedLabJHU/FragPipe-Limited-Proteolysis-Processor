@@ -23,19 +23,19 @@ def combine_by(df: pl.DataFrame, by: str, fc: str) -> pl.DataFrame:
             )
         )
         .with_columns(
-            pl.when(pl.col("P-value").list.len() > 0)
+            pl.when(pl.col("P-value").list.len().gt(0))
             .then(pl.col("P-value"))
             .otherwise([1.0])
             .alias("P-value"),
-            pl.when(pl.col("Adj. P-value").list.len() > 0)
+            pl.when(pl.col("Adj. P-value").list.len().gt(0))
             .then(pl.col("Adj. P-value"))
             .otherwise([1.0])
             .alias("Adj. P-value"),
-            pl.when(pl.col("CV").list.len() > 0)
+            pl.when(pl.col("CV").list.len().gt(0))
             .then(pl.col("CV"))
             .otherwise([0.0])
             .alias("CV"),
-            pl.when(pl.col(fc).list.len() > 0)
+            pl.when(pl.col(fc).list.len().gt(0))
             .then(pl.col(fc))
             .otherwise([0.0])
             .alias(fc)
@@ -84,7 +84,7 @@ def summary_by(df: pl.DataFrame, by: str, fc: str, rcParams: dict) -> pl.DataFra
                     (pl.col(f"Log2 {fc}").abs().ge(prot_fc_sig))
                     & (pl.col("P-value").le(prot_pv_sig))
                 )
-                | (
+                | ( # Legacy, maybe we should drop this or improve it
                     (pl.col(f"Log2 {fc}").abs().ge(prot_hfc_sig))
                     & (pl.col("P-value").le(prot_hpv_sig))
                 )

@@ -43,6 +43,7 @@ dependencies = [
   "biopython",
   "h2",
   "httpx",
+  "hvplot",
   "matplotlib",
   "nest_asyncio",
   "numpy",
