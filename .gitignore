@@ -14,3 +14,4 @@ flippr/__pycache__
 /**/*.xlsx
 /**/__pycache__
 !/.gitignore
+!/.readthedocs.yaml
