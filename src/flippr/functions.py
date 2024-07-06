@@ -62,12 +62,12 @@ def _impute_aon_intensities(df: pl.DataFrame,
     df = \
     df.with_columns(# Impute only on AON ions in control conditions
         pl.when(pl.col(f"{ctrl_name} ZC").eq(n_rep) & pl.col(f"{test_name} ZC").eq(0))
-        .then(pl.concat_list("IMP"))
+        .then(pl.col("IMP"))
         .otherwise(pl.concat_list(ctrl_ints))
         .alias(f"{ctrl_name} Intensity"),
         # Impute only on AON ions in test conditions
         pl.when(pl.col(f"{ctrl_name} ZC").eq(0) & pl.col(f"{test_name} ZC").eq(n_rep))
-        .then(pl.concat_list("IMP"))
+        .then(pl.col("IMP"))
         .otherwise(pl.concat_list(test_ints))
         .alias(f"{test_name} Intensity")
     ).with_columns(# Seperate out imputation (if perfromed) vars for control conditions
@@ -126,7 +126,7 @@ def _add_fdr(df: pl.DataFrame, rcParams: dict, **kwargs) -> pl.DataFrame:
         .agg(# Calculate Adj. P-value
             pl.map_groups(
                 exprs="P-value",
-                function=lambda x: sp.stats.false_discovery_control(x[0]),
+                function=lambda x: list(sp.stats.false_discovery_control(x[0])),
                 return_dtype=pl.List(pl.Float64)
             ).alias("Adj. P-value"),
         )# Add Adj. P-value to the original `DataFrame`
