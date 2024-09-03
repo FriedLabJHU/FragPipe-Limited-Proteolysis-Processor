@@ -227,7 +227,7 @@ class Result:
 
     @cached_property
     def protein_summary(self) -> pl.DataFrame:
-        self._proteins = self.ion.group_by(by="Protein ID", maintain_order=True).agg(
+        self._proteins = self.ion.group_by("Protein ID", maintain_order=True).agg(
             pl.col(_FLIPPR_PROTEIN_SUMMARY_COLUMNS).first()
         )
 

@@ -14,7 +14,7 @@ COMB_NAME_COLUMN = {
 def combine_by(df: pl.DataFrame, by: str, fc: str) -> pl.DataFrame:
 
     combined = (
-        df.group_by(by=["Protein ID", COMB_NAME_COLUMN[by]], maintain_order=True)
+        df.group_by(["Protein ID", COMB_NAME_COLUMN[by]], maintain_order=True)
         .agg(
             pl.col(_FLIPPR_COMBINE_KEY[by]).first(),
             pl.col(["P-value", "Adj. P-value", "CV", fc])
@@ -70,13 +70,13 @@ def summary_by(df: pl.DataFrame, by: str, fc: str, rcParams: dict) -> pl.DataFra
     prot_hpv_sig = rcParams.get("protein.high_pval_sig_thresh", 0.016)
 
     val = (
-        df.group_by(by="Protein ID", maintain_order=True)
+        df.group_by("Protein ID", maintain_order=True)
         .agg(pl.col("CV").filter(pl.col("-Log10 P-value").gt(0)).len())
         .rename({"CV": f"No. of Valid {by}"})
     )
 
     sig = (
-        df.group_by(by="Protein ID", maintain_order=True)
+        df.group_by("Protein ID", maintain_order=True)
         .agg(
             pl.col("CV")
             .filter(
@@ -95,7 +95,7 @@ def summary_by(df: pl.DataFrame, by: str, fc: str, rcParams: dict) -> pl.DataFra
     )
 
     sigsig = (
-        df.group_by(by="Protein ID", maintain_order=True)
+        df.group_by("Protein ID", maintain_order=True)
         .agg(
             pl.col("CV")
             .filter(
