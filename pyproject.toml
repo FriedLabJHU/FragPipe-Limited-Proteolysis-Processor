@@ -8,53 +8,44 @@ dynamic = ["version"]
 description = "FragPipe Limited-Proteolysis Processor (FLiPPR) is modular, fast, and easy-to-use data processing tool for LiP-MS & LFQ-based experiments analyzed in FragPipe"
 readme = "README.md"
 requires-python = ">=3.10"
+
 keywords = [
-  "bottom-up proteomics",
   "computational mass spectrometry",
   "fragpipe",
-  "fragpipe analysis",
   "limited proteolysis",
   "lip-ms",
   "lfq",
-  "label-free",
   "label-free quantification",
   "differential analysis",
   "proteomics",
   "flippr",
-  "fragpipe"
 ]
+
 authors = [
-  { name = "Edgar Manriquez-Sandoval", email = "emanriq1@jhu.edu"},
+  { name = "Edgar Manriquez-Sandoval", email = "mansanlab@gmail.com"},
 ]
+
 maintainers = [
   {name = "FriedLab@JHU", email = "friedlab.jhu@gmail.com"},
   {name = "Stephen D. Fried", email = "sdfried@jhu.edu"},
-  {name = "Edgar Manriquez-Sandoval", email = "emanriq1@jhu.edu"},
+  {name = "Edgar Manriquez-Sandoval", email = "mansanlab@gmail.com"},
 ]
+
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
+
 dependencies = [
-  "biopython",
-  "h2",
-  "httpx",
-  "hvplot",
-  "matplotlib",
-  "nest_asyncio",
-  "numpy",
-  "pandas",
-  "polars",
-  "pyarrow",
-  "requests",
-  "scipy",
-  "seaborn",
-  "xlsx2csv",
-  "xlsxwriter"
+  "numpy>=2.3",
+  "polars>=1.33",
+  "scipy>=1.16",
 ]
 
 [project.urls]
@@ -70,13 +61,16 @@ dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
 ]
+
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
+
 cov-report = [
   "- coverage combine",
   "coverage report",
 ]
+
 cov = [
   "test-cov",
   "cov-report",
@@ -86,12 +80,16 @@ cov = [
 "flippr" = ["py.typed"]
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.10", "3.11", "3.12"]
+python = ["3.10", "3.11", "3.12", "3.13"]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.10", "3.11", "3.12", "3.13"]
 
 [tool.hatch.envs.types]
 dependencies = [
   "mypy>=1.0.0",
 ]
+
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/flippr tests}"
 

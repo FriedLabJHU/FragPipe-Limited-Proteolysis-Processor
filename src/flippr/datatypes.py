@@ -1,173 +1,212 @@
 from __future__ import annotations
 
-from functools import cached_property
-from pathlib import Path
-
 import polars as pl
+from pathlib import Path
+from typing import Optional, Any, cast
+from functools import cached_property
 
 from . import combine as _combine
 from . import functions as _functions
+from . import validate as _validate
+from . import reader as _reader
 from .parameters import (
+    _FLIPPR_ION_COLUMNS,
+    _FLIPPR_PROTEIN_COLUMNS,
     _FLIPPR_PROTEIN_SUMMARY_COLUMNS,
-    _LFQ_FP_CONSTANT_ION_COLUMNS,
-    _LFQ_FP_CONSTANT_PROTEIN_COLUMNS,
-    _LFQ_FP_VARIABLE_ION_COLUMNS,
-    _LFQ_FP_VARIABLE_PROTEIN_COLUMNS,
 )
-from .uniprot import metadata as _metadata
 
+type replicate = int | tuple[int, int] | tuple[tuple[int, ...], tuple[int, ...]]
 
 class Process:
     """Organizes individual process runs"""
 
     def __init__(
         self,
-        fasta: pl.DataFrame,
+        rcParams: dict[str, Any],
         lip_path: Path,
-        trp_path: Path | None,
-        pid: object | None,
+        trp_path: Optional[Path],
+        method: str,
+        pid: str,
         lip_ctrl: str,
         lip_test: str,
-        n_rep: int,
-        trp_ctrl: str | None = None,
-        trp_test: str | None = None,
-        trp_n_rep: int | None = None,
+        n_rep: replicate,
+        trp_ctrl: Optional[str] = None,
+        trp_test: Optional[str] = None,
+        trp_n_rep: Optional[replicate] = None,
     ) -> None:
         """docstring"""
 
-        self._is_trp_norm = all(
-            trp is not None for trp in [trp_path, trp_ctrl, trp_test, trp_n_rep]
-        )
-
-        self._fasta: pl.DataFrame | None = fasta
-        self._pid: object = pid
+        self._rcParams: dict[str, Any] = rcParams
+        self._method: str = method
+        self._pid: str = pid
 
         self._lip_path: Path = lip_path
         self._lip_ctrl_name: str = lip_ctrl
         self._lip_test_name: str = lip_test
-        self._lip_ctrl: list[str] = [f"{lip_ctrl}_{n+1}" for n in range(n_rep)]
-        self._lip_test: list[str] = [f"{lip_test}_{n+1}" for n in range(n_rep)]
-        self._n_rep: int = n_rep
-        self._trp_path: Path | None = None
-        self._trp_ctrl_name: str | None = None
-        self._trp_test_name: str | None = None
-        self._trp_ctrl: list[str] | None = None
-        self._trp_test: list[str] | None = None
-        self._trp_n_rep: int | None = None
+        self._lip_ctrl_rep_list: list[str]
+        self._lip_test_rep_list: list[str]
+        self._lip_ctrl_n_rep: int
+        self._lip_test_n_rep: int
+        (
+            self._lip_ctrl_rep_list, 
+            self._lip_test_rep_list, 
+            self._lip_ctrl_n_rep, 
+            self._lip_test_n_rep
+        ) = self._create_replicate_variables(lip_ctrl,  lip_test, n_rep)
+        
+        self._trp_path: Optional[Path] = None
+        self._trp_ctrl_name: Optional[str] = None
+        self._trp_test_name: Optional[str] = None
+        self._trp_ctrl_rep_list: Optional[list[str]] = None
+        self._trp_test_rep_list: Optional[list[str]] = None
+        self._trp_ctrl_n_rep: Optional[int] = None
+        self._trp_test_n_rep: Optional[int] = None
 
+        self._is_trp_norm = all(trp is not None for trp in [trp_path, trp_ctrl, trp_test, trp_n_rep])
         if self._is_trp_norm:
+            assert trp_path is not None
+            assert trp_ctrl is not None
+            assert trp_test is not None
+            assert trp_n_rep is not None
+
             self._trp_path = trp_path
             self._trp_ctrl_name = trp_ctrl
             self._trp_test_name = trp_test
-            self._trp_ctrl = [f"{trp_ctrl}_{n+1}" for n in range(trp_n_rep)]
-            self._trp_test = [f"{trp_test}_{n+1}" for n in range(trp_n_rep)]
-            self._trp_n_rep = trp_n_rep
+            (
+                self._trp_ctrl_rep_list, 
+                self._trp_test_rep_list, 
+                self._trp_ctrl_n_rep, 
+                self._trp_test_n_rep
+            ) = self._create_replicate_variables(trp_ctrl,  trp_test, trp_n_rep)
 
-    @property
-    def name(self) -> str:
-        """
-            Returns the name of the process from the given LiP control and test conditions.
-        """
-        return f"{self._lip_ctrl_name}_v_{self._lip_test_name}"
+    def run(self):
+        return Result(self)
+    
+    def _create_replicate_variables(self, ctrl: str, test: str, rep: replicate) -> tuple[list[str], list[str], int, int]:
+        ctrl_rep_list: list[str]
+        test_rep_list: list[str]
+        ctrl_n_rep: int
+        test_n_rep: int
 
-    def run(self, rcParams: dict):
-        result = Result(self, rcParams)
-        return result
+        match _validate._validate_replicate(rep):
+            case "int":
+                rep = cast(int, rep)
 
+                ctrl_rep_list = [f"{ctrl}_{i+1}" for i in range(rep)]
+                test_rep_list = [f"{test}_{i+1}" for i in range(rep)]
+                ctrl_n_rep = rep
+                test_n_rep = rep
+
+            case "tuple":
+                rep = cast(tuple[int, int], rep)
+
+                ctrl_rep_list = [f"{ctrl}_{i+1}" for i in range(rep[0])]
+                test_rep_list = [f"{test}_{i+1}" for i in range(rep[1])]
+                ctrl_n_rep = rep[0]
+                test_n_rep = rep[1]
+
+            case "tuple_tuple":
+                rep = cast(tuple[tuple[int, ...], tuple[int, ...]], rep)
+
+                ctrl_rep_list = [f"{ctrl}_{i}" for i in rep[0]]
+                test_rep_list = [f"{test}_{i}" for i in rep[1]]
+                ctrl_n_rep = len(rep[0])
+                test_n_rep = len(rep[1])
+
+            case _:
+                raise ValueError("Input error.")
+            
+        return ctrl_rep_list, test_rep_list, ctrl_n_rep, test_n_rep
+    
+    def _ion_intensity_cols(self, rep_list: list[str]) -> list[str]:
+        return [f"{rep} Intensity" for rep in rep_list]
+    
+    def _trp_intensity_cols(self, rep_list: list[str]) -> list[str]:
+        match self._method:
+            case "dda":
+                trp_prot_int_val = self._rcParams.get(
+                    "trp_protein.intensity_value",
+                    "MaxLFQ Intensity"
+                )
+            case "dia":
+                trp_prot_int_val = "Intensity"
+            case _:
+                raise ValueError("Input error.")
+
+        return [f"{rep} {trp_prot_int_val}" for rep in rep_list]
+    
+    @cached_property
+    def _ctrl_ion_int_cols(self) -> list[str]:
+        return self._ion_intensity_cols(self._lip_ctrl_rep_list)
+    
+    @cached_property
+    def _test_ion_int_cols(self) -> list[str]:
+        return self._ion_intensity_cols(self._lip_test_rep_list)
+    
+    @cached_property
+    def _ctrl_trp_int_cols(self) -> list[str]:
+        assert self._trp_ctrl_rep_list is not None
+        return self._trp_intensity_cols(self._trp_ctrl_rep_list)
+    
+    @cached_property
+    def _test_trp_int_cols(self) -> list[str]:
+        assert self._trp_test_rep_list is not None
+        return self._trp_intensity_cols(self._trp_test_rep_list)
+
+    @cached_property
+    def _ion_columns(self) -> list[str]:
+        return _FLIPPR_ION_COLUMNS + self._ctrl_ion_int_cols + self._test_ion_int_cols
+
+    @cached_property
+    def _trp_columns(self) -> list[str]:
+        return _FLIPPR_PROTEIN_COLUMNS + self._ctrl_trp_int_cols + self._test_trp_int_cols
 
 class Result:
     """Organizes a FLiPPR Result"""
 
-    def __init__(self, cls: Process, rcParams: dict) -> None:
+    def __init__(self, cls: Process,) -> None:
         """doctstring"""
 
-        self.rcParams: dict = rcParams
-        self._fasta = cls._fasta
+        self._fc: str = "FC"
+        self._rcParams: dict[str, Any] = cls._rcParams
+        
+        self.trp_args: Optional[dict[str, Any]] = None
+        self._trp_norm: Optional[pl.DataFrame] = None
 
-        self.name: str = cls.name
-        self._is_trp_norm: bool = cls._is_trp_norm
+        self.args: dict[str, Any] = {
+            "ctrl_name":    cls._lip_ctrl_name, 
+            "test_name":    cls._lip_test_name,
+            "ctrl_ints":    cls._ctrl_ion_int_cols, 
+            "test_ints":    cls._test_ion_int_cols,
+            "ctrl_n_rep":   cls._lip_ctrl_n_rep,
+            "test_n_rep":   cls._lip_test_n_rep,
+            "rcParams":     cls._rcParams
+        }
+        
+        self._ion = _reader._read_ion(cls._lip_path, cls._method)
+        self._ion = self._ion.select(cls._ion_columns)
+        self._ion = self.run(self._ion, self.args)
+        self._ion = self.clean_up(self._ion, self.args)
 
-        self._fc = "FC"
-        self._n_rep = cls._n_rep
-        self._lip_path: Path = cls._lip_path
-        self._trp_path: Path = cls._trp_path
-        self._lip_ctrl_name: str = cls._lip_ctrl_name
-        self._lip_test_name: str = cls._lip_test_name
-        self._lip_ctrl_ints: list[str] = [f"{rep} Intensity" for rep in cls._lip_ctrl]
-        self._lip_test_ints: list[str] = [f"{rep} Intensity" for rep in cls._lip_test]
-        self._trp_n_rep: int | None = None
-        self._trp_ctrl_name: str | None = None
-        self._trp_test_name: str | None = None
-        self._trp_ctrl_ints: list[str] | None = None
-        self._trp_test_ints: list[str] | None = None
-        self._trp_ctrl_cols: list[str] | None = None
-        self._trp_test_cols: list[str] | None = None
-        self._trp_process_cols: list[str] | None = None
-        self._norm_factors: pl.DataFrame | None = None
+        if cls._is_trp_norm:
+            assert cls._trp_path is not None
 
-        self._lip_ctrl_cols: list[str] = [
-            f"{rep} {var}"
-            for var in _LFQ_FP_VARIABLE_ION_COLUMNS
-            for rep in cls._lip_ctrl
-        ]
+            self.trp_args = {
+                "ctrl_name":    cls._trp_ctrl_name,
+                "test_name":    cls._trp_test_name,
+                "ctrl_ints":    cls._ctrl_trp_int_cols,
+                "test_ints":    cls._test_trp_int_cols,
+                "ctrl_n_rep":   cls._trp_ctrl_n_rep,
+                "test_n_rep":   cls._trp_test_n_rep,
+                "rcParams":     cls._rcParams
+            }
 
-        self._lip_test_cols: list[str]  = [
-            f"{rep} {var}"
-            for var in _LFQ_FP_VARIABLE_ION_COLUMNS
-            for rep in cls._lip_test
-        ]
-
-        self._lip_process_cols: list[str]  = (
-            _LFQ_FP_CONSTANT_ION_COLUMNS
-            + self._lip_ctrl_cols
-            + self._lip_test_cols
-        )
-
-        args = {"ctrl_name":self._lip_ctrl_name, "test_name":self._lip_test_name,
-                "ctrl_ints":self._lip_ctrl_ints, "test_ints": self._lip_test_ints,
-                "n_rep": self._n_rep,
-                "rcParams": self.rcParams}
-
-        self._ion = self._read_fragpipe_tsv(self._lip_path, self._lip_process_cols, "combined_ion.tsv")
-        self._ion = self.run(self._ion, args)
-        self._ion = self.clean_up(self._ion, args)
-
-        if self._is_trp_norm:
-            trp_prot_int_val = self.rcParams.get("trp_protein.intensity_value", "MaxLFQ Intensity")
-
-            self._trp_n_rep = cls._trp_n_rep
-            self._trp_ctrl_name = cls._trp_ctrl_name
-            self._trp_test_name = cls._trp_test_name
-            self._trp_ctrl_ints = [f"{rep} {trp_prot_int_val}" for rep in cls._trp_ctrl]
-            self._trp_test_ints = [f"{rep} {trp_prot_int_val}" for rep in cls._trp_test]
-
-            self._trp_ctrl_cols = [
-                f"{rep} {var}"
-                for var in _LFQ_FP_VARIABLE_PROTEIN_COLUMNS
-                for rep in cls._trp_ctrl
-            ]
-
-            self._trp_test_cols = [
-                f"{rep} {var}"
-                for var in _LFQ_FP_VARIABLE_PROTEIN_COLUMNS
-                for rep in cls._trp_test
-            ]
-
-            self._trp_process_cols = (
-                _LFQ_FP_CONSTANT_PROTEIN_COLUMNS
-                + self._trp_ctrl_cols
-                + self._trp_test_cols
-            )
-
-            trp_args = {"ctrl_name":self._trp_ctrl_name, "test_name":self._trp_test_name,
-                        "ctrl_ints":self._trp_ctrl_ints, "test_ints": self._trp_test_ints,
-                        "n_rep": self._trp_n_rep,
-                        "rcParams": self.rcParams}
-
-            self._trp_norm = self._read_fragpipe_tsv(self._trp_path, self._trp_process_cols, "combined_protein.tsv")
-            self._trp_norm = self.run(self._trp_norm, trp_args)
-            self._ion = _functions._normalize_ratios(self._ion, self._trp_norm, rcParams)
+            self._trp_norm = _reader._read_trp(cls._trp_path, cls._method)
+            self._trp_norm = self.run(self._trp_norm, self.trp_args)
+            self._ion = _functions._normalize_ratios(self._ion, self._trp_norm, cls._rcParams)
             self._fc = "Normalized FC" # Generated after running `._normalize_ratios()`
+            self._ion = _functions._log2(self._ion, self._fc)
+            
 
 
     def run(self, df: pl.DataFrame, args: dict) -> pl.DataFrame:
@@ -179,8 +218,8 @@ class Result:
         df = _functions._add_fdr(df, **args)
         df = _functions._add_ratio(df, **args)
         df = _functions._log2(df, self._fc)
-        df = _functions._log10(df, "P-value")
-        df = _functions._log10(df, "Adj. P-value")
+        df = _functions._neg_log10(df, "P-value")
+        df = _functions._neg_log10(df, "Adj. P-value")
 
         return df
 
@@ -192,16 +231,15 @@ class Result:
 
         return df
 
-    def _read_fragpipe_tsv(self, path: Path, cols: list[str], filename: str):
-        df: pl.DataFrame = pl.read_csv(path.joinpath(filename), separator="\t").select(pl.col(cols))
-        return df
-
-    def _add_metadata(self, df: pl.DataFrame) -> pl.DataFrame:
-        if self._fasta is not None:
-            md = _metadata.bio_metadata(self._fasta)
-            return df.join(md, on="Protein ID")
-
-
+    
+    @property
+    def name(self) -> str:
+        """
+            Returns the name of the process from the given LiP control and test conditions.
+            
+        """
+        return self.args.get("ctrl_name", "ctrl") + "_v_" + self.args.get("test_name", "test")
+    
     @property
     def ion(self) -> pl.DataFrame:
         """
@@ -209,8 +247,15 @@ class Result:
         """
         return self._ion
     
+    @ion.setter
+    def ion(self, ion: pl.DataFrame) -> None:
+        """
+            ion setter
+        """
+        self._ion = ion
+    
     @property
-    def trp_protein(self) -> pl.DataFrame:
+    def trp_protein(self) -> pl.DataFrame | None:
         return self._trp_norm
 
     @cached_property
@@ -231,11 +276,11 @@ class Result:
             pl.col(_FLIPPR_PROTEIN_SUMMARY_COLUMNS).first()
         )
 
-        __mod = _combine.summary_by(self.modified_peptide, by="Modified Peptides", fc=self._fc, rcParams=self.rcParams)
+        __mod = _combine.summary_by(self.modified_peptide, by="Modified Peptides", fc=self._fc, rcParams=self._rcParams)
 
-        __pep = _combine.summary_by(self.peptide, by="Peptides", fc=self._fc, rcParams=self.rcParams)
+        __pep = _combine.summary_by(self.peptide, by="Peptides", fc=self._fc, rcParams=self._rcParams)
 
-        __cut = _combine.summary_by(self.cut_site, by="Cut Sites", fc=self._fc, rcParams=self.rcParams)
+        __cut = _combine.summary_by(self.cut_site, by="Cut Sites", fc=self._fc, rcParams=self._rcParams)
 
         self._proteins = (
             self._proteins
@@ -244,7 +289,4 @@ class Result:
             .join(__cut, on="Protein ID")
         )
 
-        if self._fasta is not None:
-            return self._add_metadata(self._proteins)
-        else:
-            return self._proteins
+        return self._proteins

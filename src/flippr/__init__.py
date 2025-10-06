@@ -1,14 +1,14 @@
 from . import __about__
 
-from functools import cached_property
 from pathlib import Path
+from typing import Optional
 
 import polars as pl
 
 from . import datatypes as _types
 from . import validate as _validate
+from . import reader as _reader
 from .parameters import rcParams
-from .uniprot import fasta as _fasta
 
 __version__ = __about__.__version__
 
@@ -21,98 +21,86 @@ class Study:
     Args:
         lip (str | Path): Directory or path to the FragPipe LFQ output data for Limited Proteolysis (LiP) experiment data.
         trp (str | Path, optional): Directory or path to the FragPipe LFQ output data for Trypsin Only (TrP) experiment data. Defaults to None.
-        fasta (str | Path, optional): Path to the FASTA file containing the same protein sequences used in the LiP/TrP experiments. Defaults to None.
-        method (str): Method used to quantify ion intensities in FragPipe. `lfq` - Label-Free Quantification, `silac` - Stable Isotope Labelling (currently not incorporated). Defaults to `lfq`.
+        method (str): Acquisition and search method used to quantify ions intensities in FragPipe. `dda` - Data-dependent; `dia` - Data-independent. Defaults to `dda`.
 
     Examples:
         Analysis of a single dataset
         >>> flippr.Study(lip = "PXD025926/FragPipe/LiP_LFQ")
 
-        Analysis of a single dataset with metadata integration
-        >>> flippr.Study(lip = "PXD025926/FragPipe/LiP_LFQ", fasta = "UP000000625.fasta")
-
-        Including protein-level normalization from trypsin-only data
+        Include protein-level normalization from another dataset
         >>> flippr.Study(lip = "PXD025926/FragPipe/LiP_LFQ", trp = "PXD025926/FragPipe/TrP_LFQ")
 
     """
 
-    def __init__(self, lip: str | Path, trp: str | Path | None = None, fasta: str | Path | None = None, method: str = "lfq") -> None:
+    def __init__(self, 
+                 lip: str | Path, 
+                 trp: Optional[str | Path] = None, 
+                 method: str = "dda"
+    ) -> None:
+        """
+        docstring
+        """
 
-        _lip, _trp, _fasta_path, _method = _validate._validate_study(lip, trp, fasta, method)
+        _lip, _trp, _method = _validate._validate_study(lip, trp, method)
 
         self.lip: Path = _lip
-        self.trp: Path | None = _trp
-        self._fasta_path: Path | None = _fasta_path
+        self.trp: Optional[Path] = _trp
         self.method: str = _method
-
-        self._pid: int = 0
-        self.processes: dict = dict()
-        self.results: dict = dict()
+        self.processes: dict[str, _types.Process] = dict()
+        self.results: dict[str, _types.Result] = dict()
 
     @property
-    def samples(self) -> dict:
+    def samples(self) -> dict[str, set[str]]:
         """
         Returns the names of the samples or experimental annotations found in the FragPipe outputs for LiP and TrP (if include) datasets.
-
-        Examples:
-            Including only LiP data
-            >>> e_coli_refolding = flippr.Study(lip = "PXD025926/FragPipe/LiP_LFQ")
-            >>> print(e_coli_refolding.samples)
-            {"LiP": ("Native", "Refolded_01_min", "Refolded_05_min", "Refolded_30_min")}
-
-            Including LiP and TrP data
-            >>> e_coli_refolding = flippr.Study(lip = "PXD025926/FragPipe/LiP_LFQ", trp = "PXD025926/FragPipe/TrP_LFQ")
-            >>> print(e_coli_refolding.samples)
-            {"LiP": ("Native", "Refolded_01_min", "Refolded_05_min", "Refolded_30_min"),
-             "TrP": ("Native", "Refolded")}
-
+        
         """
+        
+        lip_samples = self._get_samples(self.lip)
 
         if self.trp is not None:
-            return {"LiP": self.lip_samples, "TrP": self.trp_samples}
+            trp_samples = self._get_samples(self.trp)
 
-        return {"LiP": self.lip_samples}
+            return {"LiP": lip_samples, "TrP": trp_samples}
 
-    @property
-    def lip_samples(self) -> set:
+        return {"LiP": lip_samples}
+
+    def _get_samples(self, path: Path) -> set[str]:
         """
-        Returns the names of the samples or experimental annotations found in the FragPipe outputs for LiP datasets.
-
-        """
-
-        return self.__read_annotation(self.lip)
-
-    @property
-    def trp_samples(self) -> set:
-        """
-        Returns the names of the samples or experimental annotations found in the FragPipe outputs for TrP datasets.
+        Returns the names of the samples from experimental annotations.
 
         """
 
-        return self.__read_annotation(self.trp)
+        annot = _reader._read_experiment_annotation(path)
 
-    @cached_property
-    def fasta(self) -> pl.DataFrame | None:
-        """
-        Returns a three column dataframe containing Protein IDs, Sequences, and Valid ID if the Protein ID is interpretable as an official Uniprot ID.
+        samples = [info.get("Sample Name") for info in annot.values()]
 
-        """
-        if self._fasta_path is not None:
-            return _fasta._read_fasta(self._fasta_path)
+        samples = list(filter(None, samples))
 
-        return None
+        samples = ["_".join(name.split("_")[:-1]) for name in samples]
+
+        return set(samples)
+
 
     def add_process(
-        self, pid: object | None, lip_ctrl: str, lip_test: str, n_rep: int, trp_ctrl: str | None = None, trp_test: str | None = None, trp_n_rep: int | None = None) -> None:
+            self, 
+            pid: str, 
+            lip_ctrl: str, 
+            lip_test: str, 
+            n_rep: _types.replicate,
+            trp_ctrl: Optional[str] = None, 
+            trp_test: Optional[str] = None, 
+            trp_n_rep: Optional[_types.replicate] = None
+    ) -> None:
         """
         Adding a process to calculate the fold-change between test and control conditions.
         Normalization is optional and must include a TrP experiment in the `Study` set-up.
 
         Args:
-            pid (Any): Process ID used to index the `Study().results` dictionary after running `Study().run()`.
+            pid (str): Process ID used to index the `Study().results` dictionary after running `Study().run()`.
             lip_ctrl (str): Control condition sample name from the LiP experiment.
             lip_test (str): Test condition sample name from the LiP experiment.
-            n_rep (int): Number of replicates in the LiP experiment.
+            n_rep (int | tuple(int, int), tuple(tuple(int, ...), tuple(int, ...))): Number of replicates in the LiP experiment.
             trp_ctrl (str, optional): Control condition sample name from the TrP experiment.
             trp_test (str, optional): Test condition sample name from the TrP experiment.
             trp_n_rep (int, optional): Number of replicates in the TrP experiment.
@@ -125,20 +113,18 @@ class Study:
             >>> study.add_process("sample", "WT", "Drug", 3, "WT_TrP", "DMSO_TrP", 3)
 
             Add multiple processes to the same study
-            >>> study.add_process("cond_1", "WT", "Cond1", 5)
-            >>> study.add_process("cond_2", "WT", "Cond2", 5, "WT_TrP", "DMSO_TrP", 5)
+            >>> study.add_process("Lo_Dose", "WT", "Drug_Lo", 3, "WT_TrP", "DMSO_TrP", 3)
+            >>> study.add_process("Hi_Dose", "WT", "Drug_Hi", 3, "WT_TrP", "DMSO_TrP", 3)
+        
         """
-
-        if pid is None:
-            pid = self._pid
-            self._pid += 1
 
         self.processes.update(
             {
                 pid: _types.Process(
-                    self.fasta,
+                    rcParams,
                     self.lip,
                     self.trp,
+                    self.method,
                     pid,
                     lip_ctrl,
                     lip_test,
@@ -150,26 +136,13 @@ class Study:
             }
         )
 
-    def run(self) -> dict[object: _types.Result]:
+    def run(self) -> dict[str, _types.Result]:
         """
         Run the processes added to the study.
-        Study parameters can be changed by editing the `flippr.rcParams` dictionary.
+        Global `Study` parameters can be changed by editing the `flippr.rcParams` dictionary.
+        
         """
 
-        self.results = {pid: proc.run(rcParams) for pid, proc in self.processes.items()}
+        self.results = {pid: proc.run() for pid, proc in self.processes.items()}
 
         return self.results
-
-    def __read_annotation(self, liptrp: Path) -> set:
-        def __strip_fragpipe_repilicate(sample: str) -> str:
-            return "_".join([_ for _ in sample.split("_")[:-1]])
-
-        annotation = liptrp.joinpath("experiment_annotation.tsv")
-
-        annotation_df = pl.read_csv(annotation, separator="\t")
-
-        annotation_dict = annotation_df.select(pl.col("sample")).to_dict(
-            as_series=False
-        )
-
-        return set(__strip_fragpipe_repilicate(sample) for sample in annotation_dict["sample"])

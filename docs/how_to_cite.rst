@@ -11,3 +11,5 @@ If you found FLiPPR helpful in your research, please cite us!
 `RIS Citation`_
 
 .. _RIS Citation: https://pubs.acs.org/action/downloadCitation?doi=10.1021%2Facs.jproteome.3c00887&include=cit&format=ris&direct=true&downloadFileName=acs.jproteome.3c00887
+
+For further inquiries, contact FriedLab@JHU or mansanlab@gmail.com.

@@ -4,10 +4,15 @@ import scipy as sp
 
 
 def _cull_intensities(df: pl.DataFrame,
-                      ctrl_name: str,  test_name: str,
-                      ctrl_ints: list[str],  test_ints: list[str],
-                      n_rep: int,
-                      rcParams: dict, **kwargs) -> pl.DataFrame:
+                      ctrl_name: str,
+                      test_name: str,
+                      ctrl_ints: list[str],
+                      test_ints: list[str],
+                      ctrl_n_rep: int,
+                      test_n_rep: int,
+                      rcParams: dict,
+                      **kwargs
+) -> pl.DataFrame:
 
     max_missing = rcParams.get("ion.missing_intensity_thresh", 1)
 
@@ -16,10 +21,10 @@ def _cull_intensities(df: pl.DataFrame,
         pl.concat_list(ctrl_ints).list.count_matches(0).alias(f"{ctrl_name} ZC"),
         pl.concat_list(test_ints).list.count_matches(0).alias(f"{test_name} ZC"),
     ).filter(# Cull based on zero count (ZC)
-        (pl.col(f"{ctrl_name} ZC").le(max_missing) & pl.col(f"{test_name} ZC").eq(0))
+          (pl.col(f"{ctrl_name} ZC").le(max_missing) & pl.col(f"{test_name} ZC").eq(0))
         | (pl.col(f"{ctrl_name} ZC").eq(0)           & pl.col(f"{test_name} ZC").le(max_missing))
-        | (pl.col(f"{ctrl_name} ZC").eq(n_rep)       & pl.col(f"{test_name} ZC").eq(0))
-        | (pl.col(f"{ctrl_name} ZC").eq(0)           & pl.col(f"{test_name} ZC").eq(n_rep))
+        | (pl.col(f"{ctrl_name} ZC").eq(ctrl_n_rep)  & pl.col(f"{test_name} ZC").eq(0))
+        | (pl.col(f"{ctrl_name} ZC").eq(0)           & pl.col(f"{test_name} ZC").eq(test_n_rep))
     ).with_columns(# Replace zero values remaining with null
         pl.col(ctrl_ints).replace(0.0, None),
         pl.col(test_ints).replace(0.0, None)
@@ -29,15 +34,18 @@ def _cull_intensities(df: pl.DataFrame,
 
 
 def _add_alt_hypothesis(df: pl.DataFrame,
-                        ctrl_name: str,  test_name: str,
-                        n_rep: int,
-                        rcParams: dict, **kwargs) -> pl.DataFrame:
+                        ctrl_name: str,
+                        test_name: str,
+                        ctrl_n_rep: int,
+                        test_n_rep: int,
+                        **kwargs
+) -> pl.DataFrame:
 
     df = \
     df.with_columns(# Add alternative hypothesis
-        pl.when(pl.col(f"{ctrl_name} ZC").eq(n_rep) & pl.col(f"{test_name} ZC").eq(0))
+        pl.when(pl.col(f"{ctrl_name} ZC").eq(ctrl_n_rep) & pl.col(f"{test_name} ZC").eq(0))
         .then(pl.lit("less"))
-        .when(pl.col(f"{ctrl_name} ZC").eq(0) & pl.col(f"{test_name} ZC").eq(n_rep))
+        .when(pl.col(f"{ctrl_name} ZC").eq(0) & pl.col(f"{test_name} ZC").eq(test_n_rep))
         .then(pl.lit("greater"))
         .otherwise(pl.lit("two-sided"))
         .alias("Alternative Hypothesis")
@@ -47,27 +55,33 @@ def _add_alt_hypothesis(df: pl.DataFrame,
 
 
 def _impute_aon_intensities(df: pl.DataFrame,
-                            ctrl_name: str,  test_name: str,
-                            ctrl_ints: list[str],  test_ints: list[str],
-                            n_rep: int,
-                            rcParams: dict, **kwargs) -> pl.DataFrame:
+                            ctrl_name: str,
+                            test_name: str,
+                            ctrl_ints: list[str],
+                            test_ints: list[str],
+                            ctrl_n_rep: int,
+                            test_n_rep: int,
+                            rcParams: dict, 
+                            **kwargs
+) -> pl.DataFrame:
 
 
     # Add imputation variables
     loc = rcParams.get("ion.aon_impute_loc", 1e4)
     scale = rcParams.get("ion.aon_impute_scale", 1e3)
-    imp_df = pl.from_numpy(np.random.normal(loc=loc, scale=scale, size=(df.height, n_rep)), schema=["IMP"])
-    df = df.hstack(imp_df)
+    ctrl_imp_df = pl.from_numpy(np.random.normal(loc=loc, scale=scale, size=(df.height, ctrl_n_rep)), schema=["CTRL_IMP"])
+    test_imp_df = pl.from_numpy(np.random.normal(loc=loc, scale=scale, size=(df.height, test_n_rep)), schema=["TEST_IMP"])
+    df = df.hstack(ctrl_imp_df).hstack(test_imp_df)
 
     df = \
     df.with_columns(# Impute only on AON ions in control conditions
-        pl.when(pl.col(f"{ctrl_name} ZC").eq(n_rep) & pl.col(f"{test_name} ZC").eq(0))
-        .then(pl.col("IMP"))
+        pl.when(pl.col(f"{ctrl_name} ZC").eq(ctrl_n_rep) & pl.col(f"{test_name} ZC").eq(0))
+        .then(pl.col("CTRL_IMP"))
         .otherwise(pl.concat_list(ctrl_ints))
         .alias(f"{ctrl_name} Intensity"),
         # Impute only on AON ions in test conditions
-        pl.when(pl.col(f"{ctrl_name} ZC").eq(0) & pl.col(f"{test_name} ZC").eq(n_rep))
-        .then(pl.col("IMP"))
+        pl.when(pl.col(f"{ctrl_name} ZC").eq(0) & pl.col(f"{test_name} ZC").eq(test_n_rep))
+        .then(pl.col("TEST_IMP"))
         .otherwise(pl.concat_list(test_ints))
         .alias(f"{test_name} Intensity")
     ).with_columns(# Seperate out imputation (if perfromed) vars for control conditions
@@ -77,15 +91,16 @@ def _impute_aon_intensities(df: pl.DataFrame,
     ).with_columns(# Drop nulls for further computations, this column will be droped down-stream
         pl.col(f"{ctrl_name} Intensity").list.drop_nulls().alias(f"{ctrl_name} Intensity"),
         pl.col(f"{test_name} Intensity").list.drop_nulls().alias(f"{test_name} Intensity")
-    ).drop(["IMP", f"{ctrl_name} ZC", f"{test_name} ZC"])
+    ).drop(["CTRL_IMP", "TEST_IMP", f"{ctrl_name} ZC", f"{test_name} ZC"])
 
     return df
 
 
 def _add_ttest(df: pl.DataFrame,
-               ctrl_name: str,  test_name: str,
-               n_rep: int,
-               rcParams: dict, **kwargs) -> pl.DataFrame:
+               ctrl_name: str,
+               test_name: str,
+               **kwargs
+) -> pl.DataFrame:
 
     df = \
     df.with_columns(# Prepare the descriptive stats for `.ttest_ind_from_stats()`
@@ -115,31 +130,35 @@ def _add_ttest(df: pl.DataFrame,
     return df
 
 
-def _add_fdr(df: pl.DataFrame, rcParams: dict, **kwargs) -> pl.DataFrame:
+def _add_fdr(df: pl.DataFrame, **kwargs) -> pl.DataFrame:
 
     # Sort on P-value
     df = df.sort(by=["Protein ID", "P-value"], descending=[False, False])
 
-    df = \
-    df.hstack(
+    tmp_pval_df = (
         df.group_by(by="Protein ID", maintain_order=True)
-        .agg(# Calculate Adj. P-value
-            pl.map_groups(
-                exprs="P-value",
-                function=lambda x: list(sp.stats.false_discovery_control(x[0])),
+        .agg(
+            pl.col("P-value")
+        ).with_columns(
+            pl.col("P-value").map_elements(
+                lambda x: sp.stats.false_discovery_control(x),
                 return_dtype=pl.List(pl.Float64)
-            ).alias("Adj. P-value"),
-        )# Add Adj. P-value to the original `DataFrame`
-        .explode(pl.col("Adj. P-value"))
-        .select(pl.col("Adj. P-value"))
+            ).alias("Adj. P-value")
+        ).explode("Adj. P-value").select("Adj. P-value")
+    )
+
+    df = df.hstack(
+        tmp_pval_df
     )
 
     return df
 
 
 def _add_ratio(df: pl.DataFrame,
-               ctrl_name: str,  test_name: str,
-               rcParams: dict, **kwargs) -> pl.DataFrame:
+               ctrl_name: str,  
+               test_name: str,
+               **kwargs
+) -> pl.DataFrame:
 
     df = \
     df.with_columns(# Calculate FC and CV
@@ -156,7 +175,11 @@ def _add_ratio(df: pl.DataFrame,
     return df
 
 
-def _normalize_ratios(df: pl.DataFrame, trp_norm: pl.DataFrame, rcParams: dict, **kwargs) -> pl.DataFrame:
+def _normalize_ratios(df: pl.DataFrame, 
+                      trp_norm: pl.DataFrame, 
+                      rcParams: dict, 
+                      **kwargs
+) -> pl.DataFrame:
 
     trp_prot_fc = rcParams.get("trp_protein.fc_sig_tresh", 1.0)
     trp_prot_pval = rcParams.get("trp_protein.pval_sig_tresh", 0.01)
@@ -183,7 +206,7 @@ def _normalize_ratios(df: pl.DataFrame, trp_norm: pl.DataFrame, rcParams: dict, 
     return df
 
 
-def _add_start_end_aa(df: pl.DataFrame, rcParams: dict, **kwargs) -> pl.DataFrame:
+def _add_start_end_aa(df: pl.DataFrame, **kwargs) -> pl.DataFrame:
 
     df = \
     df.with_columns(# Parse the Starting and Ending AA of the peptide
@@ -194,7 +217,7 @@ def _add_start_end_aa(df: pl.DataFrame, rcParams: dict, **kwargs) -> pl.DataFram
     return df
 
 
-def _add_half_trpytic(df: pl.DataFrame, rcParams: dict, **kwargs) -> pl.DataFrame:
+def _add_half_trpytic(df: pl.DataFrame, **kwargs) -> pl.DataFrame:
 
     df = \
     df.with_columns(
@@ -242,7 +265,7 @@ def _add_half_trpytic(df: pl.DataFrame, rcParams: dict, **kwargs) -> pl.DataFram
     return df
 
 
-def _add_cut_sites(df: pl.DataFrame, rcParams: dict, **kwargs) -> pl.DataFrame:
+def _add_cut_sites(df: pl.DataFrame, **kwargs) -> pl.DataFrame:
 
     df = \
     df.with_columns(# Adding unique identifier for all `Cleavage Type`
@@ -290,5 +313,5 @@ def _log2(df: pl.DataFrame, col: str) -> pl.DataFrame:
     return df
 
 
-def _log10(df: pl.DataFrame, col: str) -> pl.DataFrame:
+def _neg_log10(df: pl.DataFrame, col: str) -> pl.DataFrame:
     return df.with_columns(-pl.col(col).log10().alias(f"-Log10 {col}"))

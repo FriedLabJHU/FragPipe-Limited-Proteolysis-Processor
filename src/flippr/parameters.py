@@ -1,25 +1,25 @@
-rcParams: dict = {
+from typing import Any
+
+rcParams: dict[str, Any] = {
     "ion.missing_intensity_thresh": 1,
-    "ion.impute_type": "gaussian",
+    "ion.aon_impute_type": "gaussian", # unused for now
     "ion.aon_impute_loc": 1e4,
     "ion.aon_impute_scale": 1e3,
-    "trp_protein.intensity_value": "MaxLFQ Intensity",
+    "trp_protein.intensity_value": "MaxLFQ Intensity", # unused for dia methods
     "trp_protein.fc_sig_tresh": 1.0,
     "trp_protein.pval_sig_tresh": 0.01,
     "protein.fc_sig_thresh": 1.0,
     "protein.pval_sig_thresh": 0.01,
     "protein.adj_pval_sig_thresh": 0.05,
-    "protein.high_fc_sig_thresh": 6.0,
-    "protein.high_pval_sig_thresh": 0.016,
 }
 
-_LFQ_FP_FILES: list[str] = [
+_DDA_FP_FILES: list[str] = [
     "combined_ion.tsv",
     "combined_protein.tsv",
     "experiment_annotation.tsv",
 ]
 
-_LFQ_FP_CONSTANT_ION_COLUMNS: list[str] = [
+_DDA_FP_CONSTANT_ION_COLUMNS: list[str] = [
     "Peptide Sequence",
     "Modified Sequence",
     "Prev AA",
@@ -40,14 +40,14 @@ _LFQ_FP_CONSTANT_ION_COLUMNS: list[str] = [
     "Mapped Proteins",
 ]
 
-_LFQ_FP_VARIABLE_ION_COLUMNS: list[str] = [
+_DDA_FP_VARIABLE_ION_COLUMNS: list[str] = [
     "Spectral Count",
     "Apex Retention Time",
     "Intensity",
     "Match Type",
 ]
 
-_LFQ_FP_CONSTANT_PROTEIN_COLUMNS: list[str] = [
+_DDA_FP_CONSTANT_PROTEIN_COLUMNS: list[str] = [
     "Protein",
     "Protein ID",
     "Entry Name",
@@ -64,32 +64,92 @@ _LFQ_FP_CONSTANT_PROTEIN_COLUMNS: list[str] = [
     "Combined Total Spectral Count",
 ]
 
-_LFQ_FP_VARIABLE_PROTEIN_COLUMNS: list[str] = [
+_DDA_FP_VARIABLE_PROTEIN_COLUMNS: list[str] = [
     "Spectral Count",
     "Intensity",
     "MaxLFQ Intensity",
 ]
 
-_FLIPPR_PROTEIN_COLUMNS: list[str] = [
-    "Protein",
+_DIA_FP_FILES: list[str] = [
+    "ion.tsv",
+    "dia-quant-output/report.pr_matrix.tsv",
+    "dia-quant-output/report.pg_matrix.tsv",
+    "experiment_annotation.tsv",
+]
+
+_DIA_FP_CONSTANT_ION_COLUMNS: list[str] = [
     "Protein ID",
-    "Entry Name",
+    "Peptide Sequence",
+    "Prev AA",
+    "Next AA",
+    "Protein Start",
+    "Protein End",
+]
+
+_DIA_DIANN_CONSTANT_ION_COLUMNS: list[str] = [
+    "Protein.Group",
+    "Stripped.Sequence",
+    "Modified.Sequence",
+    "Precursor.Charge",
+    "Protein.Ids",
+    "Protein.Names",
+    "Genes",
+    "First.Protein.Description",
+]
+
+_DIA_DIANN_CONSTANT_PROTEIN_COLUMNS: list[str] = [
+    "Protein.Group",
+    "Protein.Names",
+    "Genes",
+    "First.Protein.Description",
+]
+
+_DIA_RENAME_FP_ION: dict[str, str] = {
+    "Protein Start": "Start",
+    "Protein End": "End",
+}
+
+_DIA_RENAME_DIANN_ION: dict[str, str] = {
+    "Protein.Group": "Protein ID",
+    "Stripped.Sequence": "Peptide Sequence",
+    "Modified.Sequence": "Modified Sequence",
+    "Precursor.Charge": "Charge",
+    "Protein.Ids": "Protein",
+    "Protein.Names": "Entry Name",
+    "Genes": "Gene",
+    "First.Protein.Description": "Protein Description",
+}
+
+_DIA_RENAME_DIANN_PROTEIN: dict[str, str] = {
+    "Protein.Group": "Protein ID",
+    "Protein.Names": "Entry Name",
+    "Genes": "Gene",
+    "First.Protein.Description": "Protein Description",
+}
+
+_FLIPPR_ION_COLUMNS: list[str] = [
+    "Protein ID",
     "Gene",
-    "Protein Length",
-    "Organism",
-    "Protein Existence",
-    "Description",
+    "Entry Name",
+    "Protein Description",
+    "Peptide Sequence",
+    "Modified Sequence",
+    "Prev AA",
+    "Next AA",
+    "Start",
+    "End",
+]
+
+_FLIPPR_PROTEIN_COLUMNS: list[str] = [
+    "Protein ID",
+    "Gene",
+    "Entry Name",
     "Protein Probability",
 ]
 
-
 _FLIPPR_PROTEIN_SUMMARY_COLUMNS: list[str] = [
-    "Protein",
-    "Entry Name",
     "Gene",
-    "Protein Description",
-    "Mapped Genes",
-    "Mapped Proteins",
+    "Entry Name",
 ]
 
 _FLIPPR_CUT_SITE_COLUMNS: list[str] = [
@@ -97,8 +157,6 @@ _FLIPPR_CUT_SITE_COLUMNS: list[str] = [
     "Gene",
     "Entry Name",
     "Protein Description",
-    "Mapped Genes",
-    "Mapped Proteins",
     "Half Tryptic",
 ]
 
@@ -109,41 +167,21 @@ _FLIPPR_PEPTIDE_COLUMNS: list[str] = [
     "Next AA",
     "Start",
     "End",
-    "Peptide Length",
     "Gene",
     "Entry Name",
     "Protein Description",
-    "Mapped Genes",
-    "Mapped Proteins",
     "Half Tryptic",
     "Cleavage Type",
 ]
 
-_FLIPPR_MODIFIED_PEPTIDE_COLUMNS: list[str] = [
-    "Prev AA",
-    "Start AA",
-    "End AA",
-    "Next AA",
-    "Start",
-    "End",
-    "Peptide Length",
-    "Gene",
-    "Entry Name",
-    "Protein Description",
-    "Mapped Genes",
-    "Mapped Proteins",
-    "Half Tryptic",
-    "Cleavage Type",
-]
-
-_FLIPPR_COMBINE_KEY: dict[str, list] = {
+_FLIPPR_COMBINE_KEY: dict[str, list[str]] = {
     "CUT SITE": _FLIPPR_CUT_SITE_COLUMNS,
     "PEPTIDE": _FLIPPR_PEPTIDE_COLUMNS,
-    "MODIFIED PEPTIDE": _FLIPPR_MODIFIED_PEPTIDE_COLUMNS,
+    "MODIFIED PEPTIDE": _FLIPPR_PEPTIDE_COLUMNS,
 }
 
 # Thank you Holehouse lab!
-_STANDARD_AA_CONVERSION = {
+_STANDARD_AA_CONVERSION: dict[str, str] = {
     "B": "N",
     "U": "C",
     "X": "G",
