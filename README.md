@@ -20,7 +20,7 @@ FLiPPR is:
 
 ## Support
 FLiPPR requires python ≥3.10
-To learn more about how FLiPPR can help you analyze your LiP-MS or LFQ data, head over to the [FLiPPR docs](https://flippr.readthedocs.io)
+To learn more about how FLiPPR can help you analyze your LiP-MS or LFQ data, head over to the [FLiPPR docs](https://fragpipe-limited-proteolysis-processor.readthedocs.io)
 
 ## Installation
 
