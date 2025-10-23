@@ -54,9 +54,9 @@ print(study.samples)
 3. Add an experimental process
 
 ```python
-study.add_process(pid="1x", ctrl="WT", test="1x_Drug", n_rep=3)
+study.add_process(pid="1x", lip_ctrl="WT", lip_test="1x_Drug", n_rep=3)
 
-study.add_process(pid="5x", ctrl="WT", test="5x_Drug", n_rep=3)
+study.add_process(pid="5x", lip_ctrl="WT", lip_test="5x_Drug", n_rep=3)
 
 ```
 
