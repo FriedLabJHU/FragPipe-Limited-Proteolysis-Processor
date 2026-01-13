@@ -119,7 +119,7 @@ def _add_ttest(df: pl.DataFrame,
             nobs2=pl.col(f"{test_name} Intensity").list.len(),
             alternative=pl.col("Alternative Hypothesis")
         ).map_elements(# Perform T-test
-            lambda x: sp.stats.ttest_ind_from_stats(**x, equal_var=False),
+            lambda x: list(sp.stats.ttest_ind_from_stats(**x, equal_var=False)),
             return_dtype=pl.List(pl.Float64)
         ).alias("Stats")
     ).with_columns(# Seperate out T-test vars
