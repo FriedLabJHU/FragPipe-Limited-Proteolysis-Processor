@@ -124,7 +124,8 @@ def _make_imputation_draws(
 ) -> pl.DataFrame:
     loc = rcParams.get("ion.aon_impute_loc", 1e4)
     scale = rcParams.get("ion.aon_impute_scale", 1e3)
-    rng = np.random.default_rng()
+    seed = rcParams.get("ion.aon_impute_seed", 0)
+    rng = np.random.default_rng(seed)
 
     return pl.DataFrame(
         {
@@ -327,8 +328,8 @@ def _select_trp_normalization_factors(
     trp_norm: pl.DataFrame,
     rcParams: RcParams,
 ) -> pl.DataFrame:
-    trp_prot_fc = rcParams.get("trp_protein.fc_sig_tresh", 1.0)
-    trp_prot_pval = rcParams.get("trp_protein.pval_sig_tresh", 0.01)
+    trp_prot_fc = rcParams.get("trp_protein.fc_sig_thresh", 1.0)
+    trp_prot_pval = rcParams.get("trp_protein.pval_sig_thresh", 0.01)
 
     return trp_norm.select(cs.by_name("Protein ID", "P-value", "FC")).select(
         pl.col("Protein ID"),

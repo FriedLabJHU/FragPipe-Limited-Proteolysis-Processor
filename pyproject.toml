@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "flippr"
-version = "0.3.0"
+version = "0.3.1"
 description = "FragPipe Limited-Proteolysis Processor (FLiPPR) is modular, fast, and easy-to-use data processing tool for LiP-MS & LFQ-based experiments analyzed in FragPipe"
 readme = "README.md"
 requires-python = ">=3.12"
